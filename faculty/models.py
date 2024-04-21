@@ -54,7 +54,7 @@ class Classroom(models.Model):
         verbose_name_plural = _('Classrooms')
 
 class SudentFaculty(models.Model):
-    student = models.ForeignKey(CustomUser, on_delete=models.CASCADE, verbose_name=_("Student"))
+    student = models.ForeignKey(CustomUser, on_delete=models.CASCADE, verbose_name=_("Student"), unique=True)
     faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE, verbose_name=_("Faculty"))
 
     class Meta:
