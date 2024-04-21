@@ -46,8 +46,8 @@ class SudentFaculty(models.Model):
 
 class LectureFaculty(models.Model):
     lecture = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    faculty = models.ManyToManyField(Faculty)
     subjects = models.ManyToManyField(Subject)
+    has_permission = models.BooleanField(default=False)
 
 
 class StudentSubject(models.Model):
