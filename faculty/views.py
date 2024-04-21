@@ -5,7 +5,7 @@ from .models import CustomUser
 
 def register(request):
     if request.method == 'POST':
-        if for.is_valid():
+        if form.is_valid():
             form.save()
 
             # CustomUser -> PK
