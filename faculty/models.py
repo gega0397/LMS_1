@@ -46,7 +46,7 @@ class SudentFaculty(models.Model):
 
 class LectureFaculty(models.Model):
     lecture = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    faculty = models.manyToManyField(Faculty)
+    faculty = models.ManyToManyField(Faculty)
     subjects = models.ManyToManyField(Subject)
 
 
