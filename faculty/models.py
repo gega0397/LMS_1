@@ -1,6 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from .choices import USER_TYPE_CHOICES
+from .choices import USER_TYPE_CHOICES, USER_STATUS_CHOICES
 from django.utils.translation import gettext_lazy as _
 
 
@@ -60,8 +60,10 @@ class Classroom(models.Model):
 
 
 class SudentFaculty(models.Model):
-    student = models.ForeignKey(CustomUser, on_delete=models.CASCADE, verbose_name=_("Student"), unique=True)
+    student = models.ForeignKey(CustomUser, on_delete=models.CASCADE, verbose_name=_("Student"))
     faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE, verbose_name=_("Faculty"))
+    status = models.CharField(max_length=20, choices=USER_STATUS_CHOICES,  default='inactive',
+                                 verbose_name=_("User Type"))
 
     class Meta:
         verbose_name = _('Student Faculty')
