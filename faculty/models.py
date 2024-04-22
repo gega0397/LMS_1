@@ -52,7 +52,7 @@ class Classroom(models.Model):
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE, verbose_name=_("Subjects"))
     lecturer = models.ForeignKey(CustomUser, on_delete=models.CASCADE, verbose_name=_("Lecturers"))
     is_full = models.BooleanField(default=False, verbose_name=_("Is Full"))
-    is_active = models.BooleanField(default=True, verbose_name=_("Is Active"))
+    is_active = models.BooleanField(default=False, verbose_name=_("Is Active"))
 
     class Meta:
         verbose_name = _('Classroom')
