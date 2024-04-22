@@ -18,7 +18,7 @@ class CustomUser(AbstractUser):
         return self.user_type == 'student'
 
     def is_lecturer(self):
-        return self.user_type == 'student'
+        return self.user_type == 'lecturer'
 
     class Meta:
         verbose_name = _('User')

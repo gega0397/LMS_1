@@ -8,9 +8,6 @@ def register(request):
         if form.is_valid():
             form.save()
 
-            # CustomUser -> PK
-            # StudentFaculty -> student, faculty
-
     # html, if user_type = Student -> faculty
     return render(request, 'register.html')
 
