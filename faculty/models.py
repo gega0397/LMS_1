@@ -48,6 +48,7 @@ class Faculty(models.Model):
 class Classroom(models.Model):
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE, verbose_name=_("Subjects"))
     lecturer = models.ForeignKey(CustomUser, on_delete=models.CASCADE, verbose_name=_("Lecturers"))
+    is_full = models.BooleanField(default=False, verbose_name=_("Is Full"))
 
     class Meta:
         verbose_name = _('Classroom')
