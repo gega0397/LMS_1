@@ -3,13 +3,20 @@ from django.db import models
 from .choices import USER_TYPE_CHOICES, USER_STATUS_CHOICES
 from django.utils.translation import gettext_lazy as _
 
-
+from .managers import CustomUserManager
 # Create your models here.
 
 class CustomUser(AbstractUser):
+    username = None
+    email = models.EmailField(_("email address"), unique=True)
     user_type = models.CharField(max_length=20, choices=USER_TYPE_CHOICES, blank=True, null=True,
                                  verbose_name=_("User Type"))
     is_authorized = models.BooleanField(default=False, verbose_name=_("Is Authorized"))
+
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = ['user_type', 'first_name', 'last_name']
+
+    objects = CustomUserManager()
 
     def __str__(self):
         return self.username
@@ -82,7 +89,7 @@ class SudentFaculty(models.Model):
 
 class StudentSubject(models.Model):
     student = models.ForeignKey(CustomUser, on_delete=models.CASCADE, verbose_name=_("Student"))
-    subject = models.ForeignKey(Classroom, on_delete=models.CASCADE, verbose_name=_("Subject"))
+    classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE, verbose_name=_("Subject"))
 
     class Meta:
         verbose_name = _('Student Subject')
