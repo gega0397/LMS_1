@@ -7,7 +7,8 @@ from django.utils.translation import gettext_lazy as _
 # Create your models here.
 
 class CustomUser(AbstractUser):
-    user_type = models.CharField(max_length=20, choices=USER_TYPE_CHOICES, blank=True, null=True,verbose_name=_("User Type"))
+    user_type = models.CharField(max_length=20, choices=USER_TYPE_CHOICES, blank=True, null=True,
+                                 verbose_name=_("User Type"))
     is_authorized = models.BooleanField(default=False, verbose_name=_("Is Authorized"))
 
     def __str__(self):
@@ -36,6 +37,7 @@ class Subject(models.Model):
         verbose_name = _('Subject')
         verbose_name_plural = _('Subjects')
 
+
 class Faculty(models.Model):
     name = models.CharField(max_length=100, verbose_name=_("Name"))
     subjects = models.ManyToManyField(Subject, related_name="faculty", verbose_name=_("Subjects"))
@@ -45,14 +47,17 @@ class Faculty(models.Model):
         verbose_name = _('Faculty')
         verbose_name_plural = _('Faculties')
 
+
 class Classroom(models.Model):
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE, verbose_name=_("Subjects"))
     lecturer = models.ForeignKey(CustomUser, on_delete=models.CASCADE, verbose_name=_("Lecturers"))
     is_full = models.BooleanField(default=False, verbose_name=_("Is Full"))
+    is_active = models.BooleanField(default=True, verbose_name=_("Is Active"))
 
     class Meta:
         verbose_name = _('Classroom')
         verbose_name_plural = _('Classrooms')
+
 
 class SudentFaculty(models.Model):
     student = models.ForeignKey(CustomUser, on_delete=models.CASCADE, verbose_name=_("Student"), unique=True)
@@ -62,14 +67,15 @@ class SudentFaculty(models.Model):
         verbose_name = _('Student Faculty')
         verbose_name_plural = _('Student Faculties')
 
-class LectureSubject(models.Model):
-    lecturer = models.ForeignKey(CustomUser, on_delete=models.CASCADE, verbose_name=_("Lecturer"))
-    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, verbose_name=_("Subjects"))
-    has_permission = models.BooleanField(default=False, verbose_name=_("Has Permission"))
 
-    class Meta:
-        verbose_name = _('Lecture Faculty')
-        verbose_name_plural = _('Lecture Faculties')
+# class LectureSubject(models.Model):
+#     lecturer = models.ForeignKey(CustomUser, on_delete=models.CASCADE, verbose_name=_("Lecturer"))
+#     subject = models.ForeignKey(Subject, on_delete=models.CASCADE, verbose_name=_("Subjects"))
+#     has_permission = models.BooleanField(default=False, verbose_name=_("Has Permission"))
+#
+#     class Meta:
+#         verbose_name = _('Lecture Subject')
+#         verbose_name_plural = _('Lecture Subjects')
 
 
 class StudentSubject(models.Model):
