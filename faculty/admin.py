@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
 from .forms import CustomUserCreationForm, CustomUserChangeForm
-from .models import CustomUser, Subject, Faculty, Classroom, StudentSubject
+from .models import CustomUser, Subject, Faculty, Classroom, StudentSubject, SudentFaculty
 
 
 class CustomUserAdmin(UserAdmin):
@@ -49,4 +49,9 @@ class ClassroomAdmin(admin.ModelAdmin):
 
 @admin.register(StudentSubject)
 class StudentSubjectAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(SudentFaculty)
+class SudentFacultyAdmin(admin.ModelAdmin):
     pass

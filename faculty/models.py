@@ -11,9 +11,9 @@ from .managers import CustomUserManager
 class CustomUser(AbstractUser):
     username = None
     email = models.EmailField(_("email address"), unique=True)
-    user_type = models.CharField(max_length=20, choices=USER_TYPE_CHOICES, blank=True, null=True,
+    user_type = models.CharField(max_length=10, choices=USER_TYPE_CHOICES, blank=True, null=True,
                                  verbose_name=_("User Type"))
-    is_authorized = models.BooleanField(default=True, verbose_name=_("Is Authorized"))
+    is_authorized = models.BooleanField(default=False, verbose_name=_("Is Authorized"))
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ['user_type', 'first_name', 'last_name']
@@ -83,7 +83,7 @@ class SudentFaculty(models.Model):
     student = models.ForeignKey(CustomUser, on_delete=models.CASCADE,
                                 limit_choices_to={'user_type': 'student'}, verbose_name=_("Student"))
     faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE, verbose_name=_("Faculty"))
-    status = models.CharField(max_length=20, choices=USER_STATUS_CHOICES, default='inactive',
+    status = models.CharField(max_length=10, choices=USER_STATUS_CHOICES, default='inactive',
                               verbose_name=_("User Type"))
 
     class Meta:
