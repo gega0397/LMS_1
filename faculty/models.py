@@ -1,9 +1,11 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from .choices import USER_TYPE_CHOICES, USER_STATUS_CHOICES
+from .choices import USER_TYPE_CHOICES, USER_STATUS_CHOICES, MAX_CLASSROOM_SIZE
 from django.utils.translation import gettext_lazy as _
 
 from .managers import CustomUserManager
+
+
 # Create your models here.
 
 class CustomUser(AbstractUser):
@@ -60,7 +62,7 @@ class Classroom(models.Model):
     lecturer = models.ForeignKey(CustomUser, on_delete=models.CASCADE, verbose_name=_("Lecturers"))
     is_full = models.BooleanField(default=False, verbose_name=_("Is Full"))
     is_active = models.BooleanField(default=False, verbose_name=_("Is Active"))
-    max_students = models.IntegerField(verbose_name=_("Max Students"), default=20)
+    max_students = models.IntegerField(verbose_name=_("Max Students"), default=MAX_CLASSROOM_SIZE)
 
     class Meta:
         verbose_name = _('Classroom')
@@ -70,8 +72,8 @@ class Classroom(models.Model):
 class SudentFaculty(models.Model):
     student = models.ForeignKey(CustomUser, on_delete=models.CASCADE, verbose_name=_("Student"))
     faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE, verbose_name=_("Faculty"))
-    status = models.CharField(max_length=20, choices=USER_STATUS_CHOICES,  default='inactive',
-                                 verbose_name=_("User Type"))
+    status = models.CharField(max_length=20, choices=USER_STATUS_CHOICES, default='inactive',
+                              verbose_name=_("User Type"))
 
     class Meta:
         verbose_name = _('Student Faculty')
