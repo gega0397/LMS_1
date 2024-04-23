@@ -1,12 +1,9 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from .choices import USER_TYPE_CHOICES, USER_STATUS_CHOICES, MAX_CLASSROOM_SIZE
+from faculty.choices import USER_TYPE_CHOICES, USER_STATUS_CHOICES, MAX_CLASSROOM_SIZE
 from django.utils.translation import gettext_lazy as _
+from faculty.managers import CustomUserManager
 
-from .managers import CustomUserManager
-
-
-# Create your models here.
 
 class CustomUser(AbstractUser):
     username = None
@@ -62,7 +59,6 @@ class Faculty(models.Model):
         return self.name
 
 
-
 class Classroom(models.Model):
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE, verbose_name=_("Subjects"))
     lecturer = models.ForeignKey(CustomUser, on_delete=models.CASCADE,
@@ -79,7 +75,7 @@ class Classroom(models.Model):
         return f'{self.subject} {self.lecturer}'
 
 
-class SudentFaculty(models.Model):
+class StudentFaculty(models.Model):
     student = models.ForeignKey(CustomUser, on_delete=models.CASCADE,
                                 limit_choices_to={'user_type': 'student'}, verbose_name=_("Student"))
     faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE, verbose_name=_("Faculty"))
@@ -92,16 +88,6 @@ class SudentFaculty(models.Model):
 
     def __str__(self):
         return f"{self.student}: {self.faculty}"
-
-
-# class LectureSubject(models.Model):
-#     lecturer = models.ForeignKey(CustomUser, on_delete=models.CASCADE, verbose_name=_("Lecturer"))
-#     subject = models.ForeignKey(Subject, on_delete=models.CASCADE, verbose_name=_("Subjects"))
-#     has_permission = models.BooleanField(default=False, verbose_name=_("Has Permission"))
-#
-#     class Meta:
-#         verbose_name = _('Lecture Subject')
-#         verbose_name_plural = _('Lecture Subjects')
 
 
 class StudentSubject(models.Model):

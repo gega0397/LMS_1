@@ -1,14 +1,15 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
-from .models import CustomUser
-from .forms import CustomUserCreationForm
+from faculty.models import CustomUser
+from faculty.forms import CustomUserCreationForm, LoginForm
 from django.contrib import messages
-
 from django.http import HttpResponse
+from django.contrib.auth import authenticate, login, logout
 
 
 # Create your views here.
 
-def register(request):
+def register_view(request):
     if request.method == 'POST':
         # Create a form that has request.POST
         form = CustomUserCreationForm(request.POST)
@@ -24,7 +25,8 @@ def register(request):
                 user.save()
 
                 messages.success(request, f'Your Account has been created {email} ! Proceed to log in')
-                return redirect('faculty:login')  # Redirect to the login page
+                login(request, user)
+                return redirect('faculty:profile')  # Redirect to the login page
             else:
                 # Handle password mismatch error here
                 form.add_error('password2', 'Passwords entered do not match')
@@ -33,21 +35,35 @@ def register(request):
     return render(request, 'faculty/register.html', {'form': form})
 
 
-def login(request):
+def login_view(request):
+    form = LoginForm()
+
     if request.method == 'POST':
-        # if form.is_valid():
-        #     # authenticate
-        #     # login
-        #     return redirect('profile')
-        pass
-    return HttpResponse('Login page')
-    #return render(request, 'faculty/login.html')
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            password = form.cleaned_data['password']
+            user = authenticate(request, email=email, password=password)
+
+            if user:
+                login(request, user)
+                return redirect('faculty:profile_view')
+            else:
+                form.add_error(field=None, error="Invalid username or password")
+
+    return render(request, 'faculty/login.html', {'form': form})
 
 
-def profile(request):
-    if not request.user.is_authenticated():
-        return redirect('login')
-    if request.user.is_student():
-        return render(request, 'student_profile.html')
-    if request.user.is_lecturer():
-        return render(request, 'lecturer_profile.html')
+def logout_view(request):
+    logout(request)
+    return redirect('home')
+
+
+@login_required
+def profile_view(request):
+    user = request.user
+
+    if user.is_student():
+        return render(request, 'student_profile.html', {'user': user})
+    if user.is_lecturer():
+        return render(request, 'lecturer_profile.html',  {'user': user})

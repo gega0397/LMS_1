@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lecturer Profile</title>
+</head>
+<body>
+    <h1>Lecturer Profile</h1>
+    <p>Welcome, {{ user.username }}</p>
+    <form action="{% url 'logout' %}" method="post">
+        {% csrf_token %}
+    <button type="submit">Log out</button>
+</form>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Jost', sans-serif;
+            background: linear-gradient(to bottom, #0f0c29, #302b63, #24243e);
+        }
+
+        .login-card {
+            max-width: 350px; /* Adjusted to match the .main width */
+            height: 500px; /* Adjusted to match the .main height */
+            background: url("https://doc-08-2c-docs.googleusercontent.com/docs/securesc/68c90smiglihng9534mvqmq1946dmis5/fo0picsp1nhiucmc0l25s29respgpr4j/1631524275000/03522360960922298374/03522360960922298374/1Sx0jhdpEpnNIydS4rnN4kHSJtU1EyWka?e=view&authuser=0&nonce=gcrocepgbb17m&user=03522360960922298374&hash=tfhgbs86ka6divo3llbvp93mg4csvb38") no-repeat center/ cover;
+            overflow: hidden;
+            border-radius: 10px;
+            box-shadow: 5px 20px 50px #000;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .login-card h2 {
+            color: white; /* Adjusted text color */
+            margin-bottom: 20px;
+            font-size: 2.3em;
+            font-weight: bold;
+            text-align: center; /* Center the text */
+        }
+
+        .login-card input[type="text"],
+        .login-card input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: none;
+            outline: none;
+            border-radius: 5px;
+            background: #e0dede;
+            color: black;
+        }
+
+        .login-card label {
+            color: white; /* Set label color to white */
+            margin-bottom: 5px; /* Adjust margin for spacing */
+            font-weight: bold; /* Added font weight for emphasis */
+        }
+
+        .login-card button {
+            width: 60%;
+            padding: 10px;
+            margin-top: 20px;
+            background: #573b8a;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s ease-in;
+            transform: translateX(35%);
+        }
+
+        .login-card button:hover {
+            background: #6d44b8;
+        }
+
+        .login-card p {
+            color: red; /* Adjusted text color */
+            text-align: center; /* Center the text */
+        }
+    </style>
+</head>
+<body>
+    {% block content %}
+    <div class="login-card">
+        <h2>Login</h2>
+
+        <form method="post" action="{% url 'faculty:login' %}">
+            {% csrf_token %}
+            {{ form.email.label_tag }}
+            {{ form.email }}
+            {{ form.password.label_tag }}
+            {{ form.password }}
+            {% if error_message %}
+                <p>{{ error_message }}</p>
+            {% endif %}
+            <button type="submit">Login</button>
+        </form>
+
+    </div>
+    {% endblock %}
+</body>
+</html>

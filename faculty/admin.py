@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
 from .forms import CustomUserCreationForm, CustomUserChangeForm
-from .models import CustomUser, Subject, Faculty, Classroom, StudentSubject, SudentFaculty
+from .models import CustomUser, Subject, Faculty, Classroom, StudentSubject, StudentFaculty
 
 
 class CustomUserAdmin(UserAdmin):
@@ -25,9 +25,10 @@ class CustomUserAdmin(UserAdmin):
             'fields': (
                 'email', 'first_name',
                 'last_name', 'password1', 'password2',
-                'is_authorized', 'user_type', ),
+                'is_authorized', 'user_type',),
         }),
     )
+
 
 admin.site.register(CustomUser, CustomUserAdmin)
 
@@ -52,6 +53,6 @@ class StudentSubjectAdmin(admin.ModelAdmin):
     pass
 
 
-@admin.register(SudentFaculty)
-class SudentFacultyAdmin(admin.ModelAdmin):
+@admin.register(StudentFaculty)
+class StudentFacultyAdmin(admin.ModelAdmin):
     pass
