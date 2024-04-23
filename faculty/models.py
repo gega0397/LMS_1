@@ -11,7 +11,7 @@ class CustomUser(AbstractUser):
     email = models.EmailField(_("email address"), unique=True)
     user_type = models.CharField(max_length=20, choices=USER_TYPE_CHOICES, blank=True, null=True,
                                  verbose_name=_("User Type"))
-    is_authorized = models.BooleanField(default=False, verbose_name=_("Is Authorized"))
+    is_authorized = models.BooleanField(default=True, verbose_name=_("Is Authorized"))
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ['user_type', 'first_name', 'last_name']
@@ -60,6 +60,7 @@ class Classroom(models.Model):
     lecturer = models.ForeignKey(CustomUser, on_delete=models.CASCADE, verbose_name=_("Lecturers"))
     is_full = models.BooleanField(default=False, verbose_name=_("Is Full"))
     is_active = models.BooleanField(default=False, verbose_name=_("Is Active"))
+    max_students = models.IntegerField(verbose_name=_("Max Students"))
 
     class Meta:
         verbose_name = _('Classroom')

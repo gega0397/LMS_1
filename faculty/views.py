@@ -3,6 +3,8 @@ from .models import CustomUser
 from .forms import CustomUserCreationForm
 from django.contrib import messages
 
+from django.http import HttpResponse
+
 
 # Create your views here.
 
@@ -13,7 +15,7 @@ def register(request):
         if form.is_valid():
             user = form.save(commit=False)
             # Set the user's password securely
-            email = form.cleaned_data['username']
+            email = form.cleaned_data['email']
             password1 = form.cleaned_data['password1']
             password2 = form.cleaned_data['password2']
 
@@ -31,19 +33,21 @@ def register(request):
     return render(request, 'faculty/register.html', {'form': form})
 
 
-# def login(request):
-#     if request.method == 'POST':
-#         if form.is_valid():
-#             # authenticate
-#             # login
-#             return redirect('profile')
-#     return render(request, 'faculty:login.html')
-#
-#
-# def profile(request):
-#     if not request.user.is_authenticated():
-#         return redirect('login')
-#     if request.user.is_student():
-#         return render(request, 'student_profile.html')
-#     if request.user.is_lecturer():
-#         return render(request, 'lecturer_profile.html')
+def login(request):
+    if request.method == 'POST':
+        # if form.is_valid():
+        #     # authenticate
+        #     # login
+        #     return redirect('profile')
+        pass
+    return HttpResponse('Login page')
+    #return render(request, 'faculty/login.html')
+
+
+def profile(request):
+    if not request.user.is_authenticated():
+        return redirect('login')
+    if request.user.is_student():
+        return render(request, 'student_profile.html')
+    if request.user.is_lecturer():
+        return render(request, 'lecturer_profile.html')
