@@ -60,7 +60,7 @@ class Classroom(models.Model):
     lecturer = models.ForeignKey(CustomUser, on_delete=models.CASCADE, verbose_name=_("Lecturers"))
     is_full = models.BooleanField(default=False, verbose_name=_("Is Full"))
     is_active = models.BooleanField(default=False, verbose_name=_("Is Active"))
-    max_students = models.IntegerField(verbose_name=_("Max Students"))
+    max_students = models.IntegerField(verbose_name=_("Max Students"), default=20)
 
     class Meta:
         verbose_name = _('Classroom')
