@@ -67,6 +67,19 @@ class StudentProfileForm(forms.ModelForm):
             self.fields['faculty'].queryset = Faculty.objects.exclude(studentfaculty__student=user)
 
 
+class JoinClassroomForm(forms.Form):
+    classroom = forms.ModelChoiceField(queryset=Classroom.objects.none())
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        if user:
+            faculties = StudentFaculty.objects.filter(student=user).values_list('faculty', flat=True)
+            subjects = Subject.objects.filter(faculty__in=faculties)
+            classrooms = Classroom.objects.filter(subject__in=subjects).exclude(studentsubject__student=user)
+            self.fields['classroom'].queryset = classrooms
+
+
 class ClassroomCreationForm(forms.ModelForm):
     subject = forms.ModelChoiceField(queryset=Subject.objects.all())
 

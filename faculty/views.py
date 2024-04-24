@@ -64,18 +64,19 @@ def profile_view(request):
     user = request.user
 
     if user.is_student():
-        student_faculty = StudentFaculty.objects.filter(student=user).first()
+        student_faculty, created = StudentFaculty.objects.get_or_create(student=user)
         form = StudentProfileForm(request.POST or None, instance=student_faculty, user=user)
         if request.method == 'POST' and form.is_valid():
             form.save()
             return redirect('faculty:profile_view')
 
         subjects = []
-        if student_faculty and student_faculty.faculty:
+        if student_faculty.faculty:
             subjects = student_faculty.faculty.subjects.all()
 
         classrooms = Classroom.objects.filter(subject__in=subjects).exclude(studentsubject__student=user)
         enrolled_classrooms = StudentSubject.objects.filter(student=user)
+        join_classroom_form = JoinClassroomForm(user=user)
 
         context = {
             'user': user,
@@ -83,6 +84,7 @@ def profile_view(request):
             'subjects': subjects,
             'classrooms': classrooms,
             'enrolled_classrooms': enrolled_classrooms,
+            'join_classroom_form': join_classroom_form,
         }
         return render(request, 'faculty/student_profile.html', context)
 
