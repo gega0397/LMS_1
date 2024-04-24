@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from faculty.models import CustomUser, StudentFaculty, Classroom, StudentSubject
-from faculty.forms import CustomUserCreationForm, LoginForm, StudentProfileForm
+from faculty.forms import CustomUserCreationForm, LoginForm, StudentProfileForm, ClassroomCreationForm
 from django.contrib import messages
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
@@ -85,3 +85,20 @@ def profile_view(request):
             'enrolled_classrooms': enrolled_classrooms,
         }
         return render(request, 'faculty/student_profile.html', context)
+
+    if user.is_lecturer():
+        form = ClassroomCreationForm(request.POST or None)
+        if request.method == 'POST' and form.is_valid():
+            classroom = form.save(commit=False)
+            classroom.lecturer = user
+            classroom.save()
+            return redirect('faculty:profile_view')
+
+        classrooms = Classroom.objects.filter(lecturer=user)
+
+        context = {
+            'user': user,
+            'form': form,
+            'classrooms': classrooms,
+        }
+        return render(request, 'faculty/lecturer_profile.html', context)
