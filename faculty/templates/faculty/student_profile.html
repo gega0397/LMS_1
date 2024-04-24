@@ -10,14 +10,13 @@
 {% block content %}
     <h1>Welcome, {{ user.first_name }} {{ user.last_name }}</h1>
     {% if not faculty %}
-    <h2>Select Faculty</h2>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Save</button>
-    </form>
-    {% elif is_open_to_choose == True and enrolled_classrooms.count < max_classroom  %}
-
+        <h2>Select Faculty</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Save</button>
+        </form>
+    {% elif is_open_to_choose and enrolled_classrooms.count < max_classroom %}
         {% if subjects %}
             <h2>Subjects</h2>
             <ul>
@@ -31,6 +30,8 @@
                                     {{ classroom.lecturer.first_name }} {{ classroom.lecturer.last_name }} ({{ classroom.studentsubject_set.count }}/{{ classroom.max_students }})
                                     {% if classroom not in enrolled_classrooms %}
                                         <a href="{% url 'faculty:join_classroom' classroom.pk %}">Join</a>
+                                    {% else %}
+                                        <a href="{% url 'faculty:classroom_view' classroom.id %}">View Classroom</a>
                                     {% endif %}
                                 </li>
                             {% endif %}
@@ -42,13 +43,17 @@
     {% endif %}
 
     {% if enrolled_classrooms %}
-        <h2>Enrolled Classrooms</h2>
-        <ul>
-            {% for enrollment in enrolled_classrooms %}
-                <li>{{ enrollment.classroom.subject }} - {{ enrollment.classroom.lecturer.first_name }} {{ enrollment.classroom.lecturer.last_name }}</li>
-            {% endfor %}
-        </ul>
-    {% endif %}
+    <h2>Enrolled Classrooms</h2>
+    <ul>
+        {% for enrollment in enrolled_classrooms %}
+            <li>
+                <a href="{% url 'faculty:classroom_view' enrollment.classroom.id %}">
+                    {{ enrollment.classroom.subject }} - {{ enrollment.classroom.lecturer.first_name }} {{ enrollment.classroom.lecturer.last_name }}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+{% endif %}
 {% endblock %}
 
 </body>

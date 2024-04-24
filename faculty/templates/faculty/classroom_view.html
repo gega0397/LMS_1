@@ -2,9 +2,30 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classroom Detail</title>
 </head>
 <body>
+
+{% block content %}
+    <h1>Classroom Detail</h1>
+
+    <h2>{{ classroom.subject }}</h2>
+    <p><strong>Lecturer:</strong> {{ classroom.lecturer.get_full_name }}</p>
+    <p><strong>Max Students:</strong> {{ classroom.max_students }}</p>
+
+    {% if classroom.description %}
+        <h3>Description</h3>
+        <p>{{ classroom.description }}</p>
+    {% endif %}
+
+    {% if classroom.syllabus %}
+        <h3>Syllabus</h3>
+        <p>{{ classroom.syllabus }}</p>
+    {% endif %}
+
+    <a href="{% url 'faculty:profile' %}">Back to Profile</a>
+{% endblock %}
 
 </body>
 </html>

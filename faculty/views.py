@@ -114,18 +114,19 @@ def profile_view(request):
 @login_required
 def classroom_view(request, classroom_id):
     user = request.user
-    if not user.is_authorized:
-        return redirect('faculty:login')
-
     classroom = get_object_or_404(Classroom, id=classroom_id)
 
-    if user.is_student:
-        syllabus = classroom.syllabus
+    if user.is_student():
+        student_enrollment = StudentSubject.objects.filter(student=user, classroom=classroom).first()
+        if student_enrollment:
+            syllabus = classroom.syllabus
+            return render(request, 'faculty/classroom_view.html', {'classroom': classroom, 'syllabus': syllabus})
+        else:
+            messages.error(request, 'You are not enrolled in this classroom.')
+            return redirect('faculty:profile')
 
-        return render(request, 'classroom_detail.html', {'classroom': classroom, 'syllabus': syllabus})
-
-
-
+    messages.error(request, 'You are not authorized to view this classroom.')
+    return redirect('faculty:profile')
 
 
 @login_required
