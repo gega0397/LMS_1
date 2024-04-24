@@ -5,6 +5,7 @@ from faculty.forms import CustomUserCreationForm, LoginForm, StudentProfileForm,
 from django.contrib import messages
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
+from faculty.choices import MAX_CLASSROOM_SIZE, IS_OPEN_TO_CHOOSE, MAX_STUDENT_CLASSROOM
 
 
 # Create your views here.
@@ -64,25 +65,31 @@ def profile_view(request):
     user = request.user
 
     if user.is_student():
-        student_faculty = StudentFaculty.objects.filter(student=user).first()
-        form = StudentProfileForm(request.POST or None, instance=student_faculty, user=user)
+        student_faculty = StudentFaculty.objects.filter(student=user.id).first()
+        print(student_faculty, user.id)
+        form = StudentProfileForm(request.POST or None)
         if request.method == 'POST' and form.is_valid():
-            form.save()
+            obj = form.save(commit=False)
+            obj.student = request.user
+            obj.save()
             return redirect('faculty:profile')
 
         subjects = []
         if student_faculty and student_faculty.faculty:
             subjects = student_faculty.faculty.subjects.all()
 
-        classrooms = Classroom.objects.filter(subject__in=subjects).exclude(studentsubject__student=user)
-        enrolled_classrooms = StudentSubject.objects.filter(student=user)
+        classrooms = Classroom.objects.filter(subject__in=subjects).exclude(studentsubject__student=user.id)
+        enrolled_classrooms = StudentSubject.objects.filter(student=user.id)
 
         context = {
             'user': user,
             'form': form,
             'subjects': subjects,
             'classrooms': classrooms,
+            'faculty': student_faculty,
             'enrolled_classrooms': enrolled_classrooms,
+            'max_classroom': MAX_STUDENT_CLASSROOM,
+            'is_open_to_choose': IS_OPEN_TO_CHOOSE,
         }
         return render(request, 'faculty/student_profile.html', context)
 

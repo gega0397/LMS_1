@@ -1,6 +1,6 @@
 from django.urls import path, re_path
 from django.views.generic import RedirectView, TemplateView
-from faculty.views import register_view, login_view, logout_view, profile_view
+from faculty.views import register_view, login_view, logout_view, profile_view, join_classroom
 
 app_name = 'faculty'
 
@@ -10,5 +10,6 @@ urlpatterns = [
     path('login/', login_view, name='login'),
     path('logout/', logout_view, name='logout'),
     path('profile/', profile_view, name='profile'),
+    path('classroom/<int:classroom_id>', join_classroom, name='join_classroom'),
     re_path(r'^.*$', RedirectView.as_view(pattern_name='faculty:home')),
 ]

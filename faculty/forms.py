@@ -58,13 +58,7 @@ class StudentProfileForm(forms.ModelForm):
 
     class Meta:
         model = StudentFaculty
-        fields = ['faculty', 'status']
-
-    def __init__(self, *args, **kwargs):
-        user = kwargs.pop('user', None)
-        super().__init__(*args, **kwargs)
-        if user:
-            self.fields['faculty'].queryset = Faculty.objects.exclude(studentfaculty__student=user)
+        fields = ['faculty']
 
 
 class JoinClassroomForm(forms.Form):

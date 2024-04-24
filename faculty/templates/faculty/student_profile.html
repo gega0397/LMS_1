@@ -9,34 +9,36 @@
 
 {% block content %}
     <h1>Welcome, {{ user.first_name }} {{ user.last_name }}</h1>
-
+    {% if not faculty %}
     <h2>Select Faculty</h2>
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit">Save</button>
     </form>
+    {% elif is_open_to_choose == True and enrolled_classrooms.count < max_classroom  %}
 
-    {% if subjects %}
-        <h2>Subjects</h2>
-        <ul>
-            {% for subject in subjects %}
-                <li>{{ subject.name }}</li>
-                <h3>Classrooms</h3>
-                <ul>
-                    {% for classroom in classrooms %}
-                        {% if classroom.subject == subject %}
-                            <li>
-                                {{ classroom.lecturer.first_name }} {{ classroom.lecturer.last_name }} ({{ classroom.studentsubject_set.count }}/{{ classroom.max_students }})
-                                {% if classroom not in enrolled_classrooms %}
-                                    <a href="{% url 'faculty:join_classroom' classroom.pk %}">Join</a>
-                                {% endif %}
-                            </li>
-                        {% endif %}
-                    {% endfor %}
-                </ul>
-            {% endfor %}
-        </ul>
+        {% if subjects %}
+            <h2>Subjects</h2>
+            <ul>
+                {% for subject in subjects %}
+                    <li>{{ subject.name }}</li>
+                    <h3>Classrooms</h3>
+                    <ul>
+                        {% for classroom in classrooms %}
+                            {% if classroom.subject == subject %}
+                                <li>
+                                    {{ classroom.lecturer.first_name }} {{ classroom.lecturer.last_name }} ({{ classroom.studentsubject_set.count }}/{{ classroom.max_students }})
+                                    {% if classroom not in enrolled_classrooms %}
+                                        <a href="{% url 'faculty:join_classroom' classroom.pk %}">Join</a>
+                                    {% endif %}
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                {% endfor %}
+            </ul>
+        {% endif %}
     {% endif %}
 
     {% if enrolled_classrooms %}
