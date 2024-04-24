@@ -4,57 +4,104 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Welcome</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        li {
+            margin-bottom: 10px;
+        }
+        .classroom-item {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .classroom-item a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .classroom-item a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
 
-{% block content %}
-    <h1>Welcome, {{ user.first_name }} {{ user.last_name }}</h1>
-    {% if not faculty %}
-        <h2>Select Faculty</h2>
-        <form method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit">Save</button>
-        </form>
-    {% elif is_open_to_choose and enrolled_classrooms.count < max_classroom %}
-        {% if subjects %}
-            <h2>Subjects</h2>
-            <ul>
-                {% for subject in subjects %}
-                    <li>{{ subject.name }}</li>
-                    <h3>Classrooms</h3>
-                    <ul>
-                        {% for classroom in classrooms %}
-                            {% if classroom.subject == subject %}
-                                <li>
-                                    {{ classroom.lecturer.first_name }} {{ classroom.lecturer.last_name }} ({{ classroom.studentsubject_set.count }}/{{ classroom.max_students }})
-                                    {% if classroom not in enrolled_classrooms %}
-                                        <a href="{% url 'faculty:join_classroom' classroom.pk %}">Join</a>
-                                    {% else %}
-                                        <a href="{% url 'faculty:classroom_view' classroom.id %}">View Classroom</a>
+<div>
+    {% block content %}
+        <h1>Welcome, {{ user.first_name }} {{ user.last_name }}</h1>
+
+        {% if not faculty %}
+            <h2>Select Faculty</h2>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit">Save</button>
+            </form>
+        {% elif is_open_to_choose and enrolled_classrooms.count < max_classroom %}
+            {% if subjects %}
+                <h2>Subjects</h2>
+                <ul>
+                    {% for subject in subjects %}
+                        <li>
+                            <h3>{{ subject.name }}</h3>
+                            <ul>
+                                {% for classroom in classrooms %}
+                                    {% if classroom.subject == subject %}
+                                        <li class="classroom-item">
+                                            {{ classroom.lecturer.first_name }} {{ classroom.lecturer.last_name }} ({{ classroom.studentsubject_set.count }}/{{ classroom.max_students }})
+                                            {% if classroom not in enrolled_classrooms %}
+                                                <a href="{% url 'faculty:join_classroom' classroom.pk %}">Join</a>
+                                            {% else %}
+                                                <a href="{% url 'faculty:classroom_view' classroom.id %}">View Classroom</a>
+                                            {% endif %}
+                                        </li>
                                     {% endif %}
-                                </li>
-                            {% endif %}
-                        {% endfor %}
-                    </ul>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endif %}
+
+        {% if enrolled_classrooms %}
+            <h2>Enrolled Classrooms</h2>
+            <ul>
+                {% for enrollment in enrolled_classrooms %}
+                    <li class="classroom-item">
+                        <a href="{% url 'faculty:classroom_view' enrollment.classroom.id %}">
+                            {{ enrollment.classroom.subject }} - {{ enrollment.classroom.lecturer.first_name }} {{ enrollment.classroom.lecturer.last_name }}
+                        </a>
+                    </li>
                 {% endfor %}
             </ul>
         {% endif %}
-    {% endif %}
-
-    {% if enrolled_classrooms %}
-    <h2>Enrolled Classrooms</h2>
-    <ul>
-        {% for enrollment in enrolled_classrooms %}
-            <li>
-                <a href="{% url 'faculty:classroom_view' enrollment.classroom.id %}">
-                    {{ enrollment.classroom.subject }} - {{ enrollment.classroom.lecturer.first_name }} {{ enrollment.classroom.lecturer.last_name }}
-                </a>
-            </li>
-        {% endfor %}
-    </ul>
-{% endif %}
-{% endblock %}
+    {% endblock %}
+</div>
 
 </body>
 </html>

@@ -4,28 +4,54 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Classroom Detail</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+        a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
 
-{% block content %}
-    <h1>Classroom Detail</h1>
+<div>
+    {% block content %}
+        <h1>Classroom Detail</h1>
 
-    <h2>{{ classroom.subject }}</h2>
-    <p><strong>Lecturer:</strong> {{ classroom.lecturer.get_full_name }}</p>
-    <p><strong>Max Students:</strong> {{ classroom.max_students }}</p>
+        <div>
+            <h2>{{ classroom.subject }}</h2>
+            <p><strong>Lecturer:</strong> {{ classroom.lecturer.get_full_name }}</p>
+            <p><strong>Max Students:</strong> {{ classroom.max_students }}</p>
 
-    {% if classroom.description %}
-        <h3>Description</h3>
-        <p>{{ classroom.description }}</p>
-    {% endif %}
+            {% if classroom.description %}
+                <h3>Description</h3>
+                <p>{{ classroom.description }}</p>
+            {% endif %}
 
-    {% if classroom.syllabus %}
-        <h3>Syllabus</h3>
-        <p>{{ classroom.syllabus }}</p>
-    {% endif %}
+            {% if classroom.syllabus %}
+                <h3>Syllabus</h3>
+                <p>{{ classroom.syllabus }}</p>
+            {% endif %}
+        </div>
 
-    <a href="{% url 'faculty:profile' %}">Back to Profile</a>
-{% endblock %}
+        <p><a href="{% url 'faculty:profile' %}">Back to Profile</a></p>
+    {% endblock %}
+</div>
 
 </body>
 </html>
