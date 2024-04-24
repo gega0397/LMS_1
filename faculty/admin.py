@@ -11,6 +11,7 @@ class CustomUserAdmin(UserAdmin):
     model = CustomUser
     list_display = ["email", 'user_type', 'first_name', 'last_name', 'is_authorized']
     ordering = ['date_joined']
+    list_filter = [ 'is_authorized', 'user_type']
 
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
