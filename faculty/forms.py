@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth import password_validation
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
-from .models import CustomUser, StudentFaculty, Faculty
+from .models import CustomUser, StudentFaculty, Faculty, Classroom, Subject
 from .choices import FORM_TYPE_CHOICES
 
 
@@ -65,3 +65,11 @@ class StudentProfileForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if user:
             self.fields['faculty'].queryset = Faculty.objects.exclude(studentfaculty__student=user)
+
+
+class ClassroomCreationForm(forms.ModelForm):
+    subject = forms.ModelChoiceField(queryset=Subject.objects.all())
+
+    class Meta:
+        model = Classroom
+        fields = ['subject']
