@@ -112,8 +112,19 @@ def profile_view(request):
 
 
 @login_required
-def lecturer_classrooms(request):
+def classroom_view(request, classroom_id):
     user = request.user
+    if not user.is_authorized:
+        return redirect('faculty:login')
+
+    classroom = get_object_or_404(Classroom, id=classroom_id)
+
+    if user.is_student:
+        syllabus = classroom.syllabus
+
+        return render(request, 'classroom_detail.html', {'classroom': classroom, 'syllabus': syllabus})
+
+
 
 
 

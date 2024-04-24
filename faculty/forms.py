@@ -79,4 +79,4 @@ class ClassroomCreationForm(forms.ModelForm):
 
     class Meta:
         model = Classroom
-        fields = ['subject']
+        fields = ['syllabus']
