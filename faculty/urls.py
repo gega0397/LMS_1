@@ -13,3 +13,5 @@ urlpatterns = [
     path('classroom/<int:classroom_id>', join_classroom, name='join_classroom'),
     re_path(r'^.*$', RedirectView.as_view(pattern_name='faculty:home')),
 ]
+
+
