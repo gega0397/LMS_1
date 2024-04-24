@@ -34,7 +34,6 @@ class CustomUser(AbstractUser):
 class Subject(models.Model):
     name = models.CharField(max_length=100, verbose_name=_("Name"))
     description = models.TextField(verbose_name=_("Description"))
-    syllabus = models.FileField(upload_to='syllabus/', verbose_name=_("Syllabus"), blank=True, null=True)
 
     def __str__(self):
         return self.name
@@ -66,6 +65,7 @@ class Classroom(models.Model):
     is_full = models.BooleanField(default=False, verbose_name=_("Is Full"))
     is_active = models.BooleanField(default=True, verbose_name=_("Is Active"))
     max_students = models.IntegerField(verbose_name=_("Max Students"), default=MAX_CLASSROOM_SIZE)
+    syllabus = models.FileField(upload_to='syllabus/', verbose_name=_("Syllabus"), blank=True, null=True)
 
     class Meta:
         verbose_name = _('Classroom')

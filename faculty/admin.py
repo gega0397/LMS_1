@@ -4,6 +4,7 @@ from django.contrib.auth.admin import UserAdmin
 from .forms import CustomUserCreationForm, CustomUserChangeForm
 from .models import CustomUser, Subject, Faculty, Classroom, StudentSubject, StudentFaculty
 
+
 @admin.register(CustomUser)
 class CustomUserAdmin(UserAdmin):
     add_form = CustomUserCreationForm
@@ -11,7 +12,7 @@ class CustomUserAdmin(UserAdmin):
     model = CustomUser
     list_display = ["email", 'user_type', 'first_name', 'last_name', 'is_authorized']
     ordering = ['date_joined']
-    list_filter = [ 'is_authorized', 'user_type']
+    list_filter = ['is_authorized', 'user_type']
 
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
@@ -56,4 +57,5 @@ class StudentSubjectAdmin(admin.ModelAdmin):
 
 @admin.register(StudentFaculty)
 class StudentFacultyAdmin(admin.ModelAdmin):
-    pass
+    list_display = ['student', 'faculty', 'status']
+    list_filter = ['status', 'faculty']

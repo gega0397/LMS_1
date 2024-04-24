@@ -47,7 +47,7 @@ def login_view(request):
 
             if user:
                 login(request, user)
-                return redirect('faculty:profile_view')
+                return redirect('faculty:profile')
             else:
                 form.add_error(field=None, error="Invalid username or password")
 
