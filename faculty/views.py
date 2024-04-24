@@ -125,6 +125,17 @@ def classroom_view(request, classroom_id):
             messages.error(request, 'You are not enrolled in this classroom.')
             return redirect('faculty:profile')
 
+    if user.is_lecturer():
+        if classroom.lecturer == user:
+            enrolled_students = classroom.studentsubject_set.all()
+            return render(request, 'faculty/lecturer_classroom_view.html', {
+                'classroom': classroom,
+                'enrolled_students': enrolled_students,
+            })
+        else:
+            messages.error(request, 'You are not the lecturer for this classroom.')
+            return redirect('faculty:profile')
+
     messages.error(request, 'You are not authorized to view this classroom.')
     return redirect('faculty:profile')
 
