@@ -112,6 +112,12 @@ def profile_view(request):
 
 
 @login_required
+def lecturer_classrooms(request):
+    user = request.user
+
+
+
+@login_required
 def join_classroom(request, classroom_id):
     user = request.user
     classroom = get_object_or_404(Classroom, pk=classroom_id)
