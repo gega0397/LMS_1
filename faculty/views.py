@@ -1,5 +1,5 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from faculty.models import CustomUser, StudentFaculty, Classroom, StudentSubject
 from faculty.forms import CustomUserCreationForm, LoginForm, StudentProfileForm, ClassroomCreationForm
 from django.contrib import messages
@@ -102,3 +102,29 @@ def profile_view(request):
             'classrooms': classrooms,
         }
         return render(request, 'faculty/lecturer_profile.html', context)
+
+
+@login_required
+def join_classroom(request, classroom_id):
+    user = request.user
+    classroom = get_object_or_404(Classroom, pk=classroom_id)
+
+    if user.is_student():
+        if classroom.is_full:
+            # Classroom is full, display an error message
+            messages.error(request, 'The classroom is full. You cannot join.')
+        elif StudentSubject.objects.filter(student=user, classroom=classroom).exists():
+            # Student has already joined this classroom
+            messages.error(request, 'You have already joined this classroom.')
+        else:
+            # Student can join the classroom
+            student_subject = StudentSubject.objects.create(student=user, classroom=classroom)
+
+            # If the classroom is now full, mark it as full
+            if classroom.studentsubject_set.count() >= classroom.max_students:
+                classroom.is_full = True
+                classroom.save()
+
+            messages.success(request, 'You have successfully joined the classroom.')
+
+    return redirect('faculty:profile_view')
