@@ -47,7 +47,7 @@ def login_view(request):
 
             if user:
                 login(request, user)
-                return redirect('faculty:profile_view')
+                return redirect('faculty:profile')
             else:
                 form.add_error(field=None, error="Invalid username or password")
 
@@ -68,7 +68,7 @@ def profile_view(request):
         form = StudentProfileForm(request.POST or None, instance=student_faculty, user=user)
         if request.method == 'POST' and form.is_valid():
             form.save()
-            return redirect('faculty:profile_view')
+            return redirect('faculty:profile')
 
         subjects = []
         if student_faculty and student_faculty.faculty:
@@ -92,7 +92,7 @@ def profile_view(request):
             classroom = form.save(commit=False)
             classroom.lecturer = user
             classroom.save()
-            return redirect('faculty:profile_view')
+            return redirect('faculty:profile')
 
         classrooms = Classroom.objects.filter(lecturer=user)
 
@@ -127,4 +127,4 @@ def join_classroom(request, classroom_id):
 
             messages.success(request, 'You have successfully joined the classroom.')
 
-    return redirect('faculty:profile_view')
+    return redirect('faculty:profile')
