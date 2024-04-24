@@ -2,15 +2,52 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Student Profile</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome</title>
 </head>
 <body>
-    <h1>Student Profile</h1>
-    <p>Welcome, {{ user.username }}</p>
-    <p>Faculty: {{ user.faculty }}</p>
-    <form action="{% url 'logout' %}" method="post">
+
+{% block content %}
+    <h1>Welcome, {{ user.first_name }} {{ user.last_name }}</h1>
+
+    <h2>Select Faculty</h2>
+    <form method="post">
         {% csrf_token %}
-    <button type="submit">Log out</button>
-</form>
+        {{ form.as_p }}
+        <button type="submit">Save</button>
+    </form>
+
+    {% if subjects %}
+        <h2>Subjects</h2>
+        <ul>
+            {% for subject in subjects %}
+                <li>{{ subject.name }}</li>
+                <h3>Classrooms</h3>
+                <ul>
+                    {% for classroom in classrooms %}
+                        {% if classroom.subject == subject %}
+                            <li>
+                                {{ classroom.lecturer.first_name }} {{ classroom.lecturer.last_name }} ({{ classroom.studentsubject_set.count }}/{{ classroom.max_students }})
+                                {% if classroom not in enrolled_classrooms %}
+                                    <a href="{% url 'faculty:join_classroom' classroom.pk %}">Join</a>
+                                {% endif %}
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    {% if enrolled_classrooms %}
+        <h2>Enrolled Classrooms</h2>
+        <ul>
+            {% for enrollment in enrolled_classrooms %}
+                <li>{{ enrollment.classroom.subject }} - {{ enrollment.classroom.lecturer.first_name }} {{ enrollment.classroom.lecturer.last_name }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endblock %}
+
 </body>
 </html>
