@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
-from faculty.models import CustomUser
-from faculty.forms import CustomUserCreationForm, LoginForm
+from faculty.models import CustomUser, StudentFaculty, Classroom, StudentSubject
+from faculty.forms import CustomUserCreationForm, LoginForm, StudentProfileForm
 from django.contrib import messages
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
@@ -64,6 +64,24 @@ def profile_view(request):
     user = request.user
 
     if user.is_student():
-        return render(request, 'student_profile.html', {'user': user})
-    if user.is_lecturer():
-        return render(request, 'lecturer_profile.html',  {'user': user})
+        student_faculty = StudentFaculty.objects.filter(student=user).first()
+        form = StudentProfileForm(request.POST or None, instance=student_faculty, user=user)
+        if request.method == 'POST' and form.is_valid():
+            form.save()
+            return redirect('faculty:profile_view')
+
+        subjects = []
+        if student_faculty and student_faculty.faculty:
+            subjects = student_faculty.faculty.subjects.all()
+
+        classrooms = Classroom.objects.filter(subject__in=subjects).exclude(studentsubject__student=user)
+        enrolled_classrooms = StudentSubject.objects.filter(student=user)
+
+        context = {
+            'user': user,
+            'form': form,
+            'subjects': subjects,
+            'classrooms': classrooms,
+            'enrolled_classrooms': enrolled_classrooms,
+        }
+        return render(request, 'faculty/student_profile.html', context)
