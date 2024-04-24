@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth import password_validation
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
-from .models import CustomUser
+from .models import CustomUser, StudentFaculty, Faculty
 from .choices import FORM_TYPE_CHOICES
 
 
@@ -51,3 +51,17 @@ class LoginForm(forms.Form):
         cleaned_data = super().clean()
         # Perform additional cleaning or validation as needed
         return cleaned_data
+
+
+class StudentProfileForm(forms.ModelForm):
+    faculty = forms.ModelChoiceField(queryset=Faculty.objects.all(), required=False)
+
+    class Meta:
+        model = StudentFaculty
+        fields = ['faculty', 'status']
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        if user:
+            self.fields['faculty'].queryset = Faculty.objects.exclude(studentfaculty__student=user)
