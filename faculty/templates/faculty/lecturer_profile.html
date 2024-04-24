@@ -2,14 +2,32 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Lecturer Profile</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Classroom</title>
 </head>
 <body>
-    <h1>Lecturer Profile</h1>
-    <p>Welcome, {{ user.username }}</p>
-    <form action="{% url 'logout' %}" method="post">
+
+{% block content %}
+    <h1>Welcome, {{ user.first_name }} {{ user.last_name }}</h1>
+
+    <h2>Create Classroom</h2>
+    <form method="post">
         {% csrf_token %}
-    <button type="submit">Log out</button>
-</form>
+        {{ form.as_p }}
+        <button type="submit">Create</button>
+    </form>
+
+    {% if classrooms %}
+        <h2>Your Classrooms</h2>
+        <ul>
+            {% for classroom in classrooms %}
+                <li>
+                    {{ classroom.subject }} ({{ classroom.studentsubject_set.count }}/{{ classroom.max_students }})
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endblock %}
+
 </body>
 </html>
