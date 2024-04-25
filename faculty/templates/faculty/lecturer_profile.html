@@ -2,14 +2,78 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Lecturer Profile</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Classroom</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            margin-bottom: 10px;
+        }
+        a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
-    <h1>Lecturer Profile</h1>
-    <p>Welcome, {{ user.username }}</p>
-    <form action="{% url 'logout' %}" method="post">
-        {% csrf_token %}
-    <button type="submit">Log out</button>
-</form>
+
+<div>
+    {% block content %}
+        <h1>Welcome, {{ user.first_name }} {{ user.last_name }}</h1>
+
+        <div>
+            <h2>Create Classroom</h2>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit">Create</button>
+            </form>
+        </div>
+
+        {% if classrooms %}
+            <div>
+                <h2>Your Classrooms</h2>
+                <ul>
+                    {% for classroom in classrooms %}
+                        <li>
+                            {{ classroom.subject }} ({{ classroom.studentsubject_set.count }}/{{ classroom.max_students }})
+                            <a href="{% url 'faculty:lecturer_classroom_view' classroom.id %}">View Classroom</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+    {% endblock %}
+</div>
+
 </body>
 </html>
