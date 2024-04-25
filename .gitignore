@@ -2,7 +2,9 @@
 .venv
 .idea
 faculty/migrations/__pycache__
+faculty/migrations
 
 faculty/__pycache__
 djangoProject1/__pycache__
 */__pycache__
+db.sqlite3
