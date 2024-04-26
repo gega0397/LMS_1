@@ -123,13 +123,12 @@ class StudentAttendanceForm(forms.Form):
                 initial=initial_status
             )
 
-    def save(self, classroom_calendar, date):
+    def save(self, classroom_calendar):
         for student_id, value in self.cleaned_data.items():
             if value:
                 student_attendance, created = ClassroomAttendance.objects.get_or_create(
                     classroom_date_id=classroom_calendar.id,
                     student_id=int(student_id),
-                    date=date,
                     defaults={'status': True}
                 )
                 if not created:
@@ -139,5 +138,4 @@ class StudentAttendanceForm(forms.Form):
                 ClassroomAttendance.objects.filter(
                     classroom_date_id=classroom_calendar.id,
                     student_id=int(student_id),
-                    date=date
                 ).delete()
