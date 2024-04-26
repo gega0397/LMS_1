@@ -78,6 +78,7 @@ class JoinClassroomForm(forms.Form):
 
 class ClassroomCreationForm(forms.ModelForm):
     subject = forms.ModelChoiceField(queryset=Subject.objects.all())
+    syllabus = forms.FileField(required=False)
 
     class Meta:
         model = Classroom

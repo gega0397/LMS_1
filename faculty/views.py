@@ -94,11 +94,12 @@ def profile_view(request):
         return render(request, 'faculty/student_profile.html', context)
 
     if user.is_lecturer():
-        form = ClassroomCreationForm(request.POST or None)
+        form = ClassroomCreationForm(request.POST, request.FILES)
         if request.method == 'POST' and form.is_valid():
             classroom = form.save(commit=False)
             classroom.lecturer = user
             classroom.save()
+            classroom.subject_id = form.cleaned_data['subject'].id
             return redirect('faculty:profile')
 
         classrooms = Classroom.objects.filter(lecturer=user)

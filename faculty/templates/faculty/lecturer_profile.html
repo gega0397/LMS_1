@@ -47,12 +47,12 @@
 <body>
 
 <div>
-    {% block content %}
+
         <h1>Welcome, {{ user.first_name }} {{ user.last_name }}</h1>
 
         <div>
             <h2>Create Classroom</h2>
-            <form method="post">
+            <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 {{ form.as_p }}
                 <button type="submit">Create</button>
@@ -66,13 +66,13 @@
                     {% for classroom in classrooms %}
                         <li>
                             {{ classroom.subject }} ({{ classroom.studentsubject_set.count }}/{{ classroom.max_students }})
-                            <a href="{% url 'faculty:lecturer_classroom_view' classroom.id %}">View Classroom</a>
+                            <a href="{% url 'faculty:classroom_view' classroom.id %}">View Classroom</a>
                         </li>
                     {% endfor %}
                 </ul>
             </div>
         {% endif %}
-    {% endblock %}
+
 </div>
 
 </body>

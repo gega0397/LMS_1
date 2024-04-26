@@ -10,9 +10,8 @@ urlpatterns = [
     path('login/', login_view, name='login'),
     path('logout/', logout_view, name='logout'),
     path('profile/', profile_view, name='profile'),
-    path('classroom/<int:classroom_id>', join_classroom, name='join_classroom'),
+    path('join_classroom/<int:classroom_id>', join_classroom, name='join_classroom'),
     path('classroom/<int:classroom_id>/', classroom_view, name='classroom_view'),
-    path('classroom/<int:classroom_id>/lecturer/', classroom_view, name='lecturer_classroom_view'),
     re_path(r'^.*$', RedirectView.as_view(pattern_name='faculty:home')),
 ]
 
