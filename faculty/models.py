@@ -1,6 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from faculty.choices import USER_TYPE_CHOICES, USER_STATUS_CHOICES, MAX_CLASSROOM_SIZE
+from faculty.choices import USER_TYPE_CHOICES, USER_STATUS_CHOICES, MAX_CLASSROOM_SIZE, DEFAULT_NUMBER_OF_CLASSES
 from django.utils.translation import gettext_lazy as _
 from faculty.managers import CustomUserManager
 
@@ -18,7 +18,7 @@ class CustomUser(AbstractUser):
     objects = CustomUserManager()
 
     def __str__(self):
-        return self.email
+        return " ".join([self.first_name, self.last_name])
 
     def is_student(self):
         return self.user_type == 'student'
@@ -59,6 +59,8 @@ class Faculty(models.Model):
 
 
 class Classroom(models.Model):
+    students = models.ManyToManyField(CustomUser, related_name="classrooms", limit_choices_to={'user_type': 'student'},
+                                      verbose_name=_("Students"))
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE, verbose_name=_("Subjects"))
     lecturer = models.ForeignKey(CustomUser, on_delete=models.CASCADE,
                                  limit_choices_to={'user_type': 'lecturer'}, verbose_name=_("Lecturers"))
@@ -66,6 +68,7 @@ class Classroom(models.Model):
     is_active = models.BooleanField(default=True, verbose_name=_("Is Active"))
     max_students = models.IntegerField(verbose_name=_("Max Students"), default=MAX_CLASSROOM_SIZE)
     syllabus = models.FileField(upload_to='syllabus/', verbose_name=_("Syllabus"), blank=True, null=True)
+    number_of_classes = models.IntegerField(verbose_name=_("Number of Classes"), default=DEFAULT_NUMBER_OF_CLASSES)
 
     class Meta:
         verbose_name = _('Classroom')
@@ -88,6 +91,34 @@ class StudentFaculty(models.Model):
 
     def __str__(self):
         return f"{self.student}: {self.faculty}"
+
+
+class ClassroomCalendar(models.Model):
+    classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE, verbose_name=_("Classroom"))
+    date = models.DateField(verbose_name=_("Date"))
+    start_time = models.TimeField(verbose_name=_("Start Time"))
+    end_time = models.TimeField(verbose_name=_("End Time"))
+
+    class Meta:
+        verbose_name = _('Classroom Calendar')
+        verbose_name_plural = _('Classroom Calendars')
+
+    def __str__(self):
+        return f"{self.classroom}: {self.date} {self.start_time} - {self.end_time}"
+
+
+class ClassroomAttendance(models.Model):
+    classroom_date = models.ForeignKey(ClassroomCalendar, on_delete=models.CASCADE, verbose_name=_("Classroom"))
+    student = models.ForeignKey(CustomUser, on_delete=models.CASCADE,
+                                limit_choices_to={'user_type': 'student'}, verbose_name=_("Student"))
+    status = models.BooleanField(default=False, verbose_name=_("Status"))
+
+    class Meta:
+        verbose_name = _('Classroom Attendance')
+        verbose_name_plural = _('Classroom Attendances')
+
+    def __str__(self):
+        return f"{self.classroom_date}"
 
 
 class StudentSubject(models.Model):

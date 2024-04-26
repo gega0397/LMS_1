@@ -1,7 +1,9 @@
 from django import forms
 from django.contrib.auth import password_validation
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
-from .models import CustomUser, StudentFaculty, Faculty, Classroom, Subject
+from django.core.exceptions import ObjectDoesNotExist
+
+from .models import CustomUser, StudentFaculty, Faculty, Classroom, Subject, ClassroomAttendance, ClassroomCalendar
 from .choices import FORM_TYPE_CHOICES
 
 
@@ -80,3 +82,62 @@ class ClassroomCreationForm(forms.ModelForm):
     class Meta:
         model = Classroom
         fields = ['syllabus']
+
+
+class ClassroomCalendarForm(forms.Form):
+    def __init__(self, classroom, *args, **kwargs):
+        super(ClassroomCalendarForm, self).__init__(*args, **kwargs)
+        for i in range(classroom.number_of_classes):
+            self.fields[f'date_{i}'] = forms.DateField(label=f'Date {i + 1}')
+            self.fields[f'start_time_{i}'] = forms.TimeField(label=f'Start Time {i + 1}')
+            self.fields[f'end_time_{i}'] = forms.TimeField(label=f'End Time {i + 1}')
+
+    def save(self, classroom):
+        for i in range(classroom.number_of_classes):
+            date = self.cleaned_data[f'date_{i}']
+            start_time = self.cleaned_data[f'start_time_{i}']
+            end_time = self.cleaned_data[f'end_time_{i}']
+            ClassroomCalendar.objects.create(
+                classroom=classroom,
+                date=date,
+                start_time=start_time,
+                end_time=end_time
+            )
+
+
+class StudentAttendanceForm(forms.Form):
+    def __init__(self, classroom_calendar, *args, **kwargs):
+        super(StudentAttendanceForm, self).__init__(*args, **kwargs)
+        students = classroom_calendar.classroom_date.classroom.students.all()
+        matching_instances = ClassroomAttendance.objects.filter(classroom_date=classroom_calendar)
+        for student in students:
+            try:
+                matching_instance = matching_instances.get(student=student)
+                initial_status = matching_instance.status  # Use the existing status if a match is found
+            except ObjectDoesNotExist:
+                initial_status = False
+
+            self.fields[f'{student.id}'] = forms.BooleanField(
+                label=f'{student}',
+                required=False,
+                initial=initial_status
+            )
+
+    def save(self, classroom_calendar, date):
+        for student_id, value in self.cleaned_data.items():
+            if value:
+                student_attendance, created = ClassroomAttendance.objects.get_or_create(
+                    classroom_date_id=classroom_calendar.id,
+                    student_id=int(student_id),
+                    date=date,
+                    defaults={'status': True}
+                )
+                if not created:
+                    student_attendance.status = True
+                    student_attendance.save()
+            else:
+                ClassroomAttendance.objects.filter(
+                    classroom_date_id=classroom_calendar.id,
+                    student_id=int(student_id),
+                    date=date
+                ).delete()
