@@ -50,6 +50,7 @@ class Faculty(models.Model):
                                       limit_choices_to={'user_type': 'lecturer'},
                                       verbose_name=_("Lecturers"))
 
+
     class Meta:
         verbose_name = _('Faculty')
         verbose_name_plural = _('Faculties')
@@ -67,7 +68,7 @@ class Classroom(models.Model):
     is_full = models.BooleanField(default=False, verbose_name=_("Is Full"))
     is_active = models.BooleanField(default=True, verbose_name=_("Is Active"))
     max_students = models.IntegerField(verbose_name=_("Max Students"), default=MAX_CLASSROOM_SIZE)
-    syllabus = models.FileField(upload_to='syllabus/', verbose_name=_("Syllabus"), blank=True, null=True)
+    syllabus = models.FileField(upload_to='media/', verbose_name=_("Syllabus"), blank=True, null=True)
     number_of_classes = models.IntegerField(verbose_name=_("Number of Classes"), default=DEFAULT_NUMBER_OF_CLASSES)
 
     class Meta:
@@ -132,3 +133,4 @@ class StudentSubject(models.Model):
 
     def __str__(self):
         return f"{self.student}: {self.classroom}"
+
