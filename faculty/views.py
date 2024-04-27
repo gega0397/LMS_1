@@ -119,23 +119,23 @@ def classroom_view(request, classroom_id):
 
     if user.is_student():
         student_enrollment = StudentSubject.objects.filter(student=user, classroom=classroom).first()
-        if student_enrollment:
-            syllabus = classroom.syllabus
-            return render(request, 'faculty/classroom_view.html', {'classroom': classroom, 'syllabus': syllabus})
-        else:
+        if not student_enrollment:
             messages.error(request, 'You are not enrolled in this classroom.')
             return redirect('faculty:profile')
+        syllabus = classroom.syllabus
+        return render(request, 'faculty/classroom_view.html', {'classroom': classroom, 'syllabus': syllabus})
+
 
     if user.is_lecturer():
-        if classroom.lecturer == user:
-            enrolled_students = classroom.studentsubject_set.all()
-            return render(request, 'faculty/lecturer_classroom_view.html', {
-                'classroom': classroom,
-                'enrolled_students': enrolled_students,
-            })
-        else:
+        if classroom.lecturer != user:
             messages.error(request, 'You are not the lecturer for this classroom.')
             return redirect('faculty:profile')
+
+        enrolled_students = classroom.studentsubject_set.all()
+        return render(request, 'faculty/lecturer_classroom_view.html', {
+            'classroom': classroom,
+            'enrolled_students': enrolled_students,
+        })
 
     messages.error(request, 'You are not authorized to view this classroom.')
     return redirect('faculty:profile')
