@@ -1,5 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.utils import timezone
+
 from faculty.choices import USER_TYPE_CHOICES, USER_STATUS_CHOICES, MAX_CLASSROOM_SIZE, DEFAULT_NUMBER_OF_CLASSES
 from django.utils.translation import gettext_lazy as _
 from faculty.managers import CustomUserManager
@@ -50,13 +52,25 @@ class Faculty(models.Model):
                                       limit_choices_to={'user_type': 'lecturer'},
                                       verbose_name=_("Lecturers"))
 
-
     class Meta:
         verbose_name = _('Faculty')
         verbose_name_plural = _('Faculties')
 
     def __str__(self):
         return self.name
+
+
+class Homework(models.Model):
+    title = models.CharField(max_length=100)
+    description = models.TextField()
+    due_date = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        verbose_name = _('Homework')
+        verbose_name_plural = _('Homeworks')
+
+    def __str__(self):
+        return self.title
 
 
 class Classroom(models.Model):
@@ -133,4 +147,3 @@ class StudentSubject(models.Model):
 
     def __str__(self):
         return f"{self.student}: {self.classroom}"
-

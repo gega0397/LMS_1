@@ -2,9 +2,9 @@ from django import forms
 from django.contrib.auth import password_validation
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from django.core.exceptions import ObjectDoesNotExist
-
-from .models import CustomUser, StudentFaculty, Faculty, Classroom, Subject, ClassroomAttendance, ClassroomCalendar
-from .choices import FORM_TYPE_CHOICES
+from faculty.models import CustomUser, StudentFaculty, Faculty, Classroom, Subject, ClassroomAttendance, ClassroomCalendar, \
+    Homework
+from faculty.choices import FORM_TYPE_CHOICES
 
 
 class CustomUserCreationForm(UserCreationForm):
@@ -140,3 +140,13 @@ class StudentAttendanceForm(forms.Form):
                     classroom_date_id=classroom_calendar.id,
                     student_id=int(student_id),
                 ).delete()
+
+
+class HomeworkForm(forms.ModelForm):
+    title = forms.CharField(label='Title', max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    description = forms.CharField(label='Description', widget=forms.Textarea(attrs={'class': 'form-control'}))
+    due_date = forms.DateTimeField(label='Due Date', widget=forms.DateTimeInput(attrs={'class': 'form-control'}))
+
+    class Meta:
+        model = Homework
+        fields = ['title', 'description', 'due_date']

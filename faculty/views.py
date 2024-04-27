@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
-from faculty.models import CustomUser, StudentFaculty, Classroom, StudentSubject
-from faculty.forms import CustomUserCreationForm, LoginForm, StudentProfileForm, ClassroomCreationForm
+from faculty.models import CustomUser, StudentFaculty, Classroom, StudentSubject, Homework
+from faculty.forms import CustomUserCreationForm, LoginForm, StudentProfileForm, ClassroomCreationForm, HomeworkForm
 from django.contrib import messages
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
@@ -165,3 +165,24 @@ def join_classroom(request, classroom_id):
             messages.success(request, 'You have successfully joined the classroom.')
 
     return redirect('faculty:profile')
+
+
+@login_required
+def create_homework(request):
+    form = HomeworkForm()
+
+    if request.method == "POST":
+        form = HomeworkForm(request.POST)
+        if form.is_valid():
+            homework = form.save()
+            homework.save()
+            return redirect('faculty:homework_list')
+
+    return render(request, 'faculty/create_homework.html', {'form': form})
+
+
+@login_required
+def homework_list(request):
+    if request.method == 'GET':
+        homeworks = Homework.objects.all()
+        return render(request, 'faculty/all_homeworks.html', {'homeworks': homeworks})

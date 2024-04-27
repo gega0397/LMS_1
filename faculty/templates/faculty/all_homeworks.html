@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>All Homeworks</title>
+</head>
+<body>
+    {% for homework in homeworks %}
+        <ol>
+            <li>{{ homework.title }} - {{ homework.due_date }}</li>
+        </ol>
+    {% endfor %}
+</body>
+</html>

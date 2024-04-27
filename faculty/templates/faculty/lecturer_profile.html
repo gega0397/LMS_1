@@ -73,6 +73,16 @@
             </div>
         {% endif %}
 
+        <div>
+            <h2>View All Homeworks</h2>
+            <a href="{% url 'faculty:homework_list' %}" class="btn">Show homeworks</a>
+        </div>
+
+        <div>
+            <h2>Create Homework</h2>
+            <a href="{% url 'faculty:create_homework' %}" class="btn">Create homework</a>
+        </div>
+
 </div>
 
 </body>

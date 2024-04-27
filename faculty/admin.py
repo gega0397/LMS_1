@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
 from .forms import CustomUserCreationForm, CustomUserChangeForm
-from .models import CustomUser, Subject, Faculty, Classroom, StudentSubject, StudentFaculty
+from .models import CustomUser, Subject, Faculty, Classroom, StudentSubject, StudentFaculty, Homework
 
 
 @admin.register(CustomUser)
@@ -59,3 +59,8 @@ class StudentSubjectAdmin(admin.ModelAdmin):
 class StudentFacultyAdmin(admin.ModelAdmin):
     list_display = ['student', 'faculty', 'status']
     list_filter = ['status', 'faculty']
+
+
+@admin.register(Homework)
+class HomeworkAdmin(admin.ModelAdmin):
+    list_display = ['title', 'description', 'due_date']
