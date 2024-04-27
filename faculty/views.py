@@ -169,6 +169,15 @@ def join_classroom(request, classroom_id):
     return redirect('faculty:profile')
 
 
+def download_file(request, request_id):
+    file = get_object_or_404(Classroom, pk=request_id)
+    file_path = file.syllabus.path
+    with open(file_path, 'rb') as f:
+        response = HttpResponse(f.read(), content_type='application/force-download')
+        response['Content-Disposition'] = 'attachment; filename=' + 'syllabus'
+    return response
+
+
 @login_required
 def homework_view(request, classroom_id):
     homeworks = Homework.objects.filter(classroom_id=classroom_id).order_by('-is_active', '-due_date')

@@ -45,7 +45,7 @@
 
             {% if classroom.syllabus %}
                 <h3>Syllabus</h3>
-                <p>{{ classroom.syllabus }}</p>
+                <p><a href="{% url 'faculty:download_file' classroom.id %}" target="_blank">Download Syllabus</a></p>
             {% endif %}
         </div>
 
