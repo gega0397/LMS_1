@@ -4,7 +4,7 @@ from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from django.core.exceptions import ObjectDoesNotExist
 from faculty.models import CustomUser, StudentFaculty, Faculty, Classroom, Subject, ClassroomAttendance, \
     ClassroomCalendar, \
-    Homework
+    Homework, StudentHomework
 from faculty.choices import FORM_TYPE_CHOICES
 
 
@@ -152,3 +152,11 @@ class HomeworkForm(forms.ModelForm):
     class Meta:
         model = Homework
         fields = ['title', 'description', 'due_date', 'is_active']
+
+
+class HomeworkSubmissionForm(forms.ModelForm):
+    homework_url = forms.URLField(max_length=200)
+
+    class Meta:
+        model = StudentHomework
+        field = ['homework_url']

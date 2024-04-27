@@ -95,6 +95,12 @@ class Homework(models.Model):
         return self.title
 
 
+class StudentHomework(models.Model):
+    student = models.ForeignKey(CustomUser, on_delete=models.CASCADE, verbose_name=_('Student'))
+    homework = models.ForeignKey(Homework, on_delete=models.CASCADE, verbose_name=_('Homework'))
+    homework_url = models.URLField(max_length=200, verbose_name=_('Homework URL'))
+
+
 class StudentFaculty(models.Model):
     student = models.ForeignKey(CustomUser, on_delete=models.CASCADE,
                                 limit_choices_to={'user_type': 'student'}, verbose_name=_("Student"))

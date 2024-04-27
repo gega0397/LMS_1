@@ -181,9 +181,12 @@ def download_file(request, request_id):
 @login_required
 def homework_view(request, classroom_id):
     homeworks = Homework.objects.filter(classroom_id=classroom_id).order_by('-is_active', '-due_date')
+    classroom = Classroom.objects.get(id=classroom_id)
+    students = classroom.students.all()
 
-    if request.user.is_student():
+    if request.user.is_student() not in students:
         pass
+
 
     create_homework = HomeworkForm()
     if request.method == "POST":
@@ -218,4 +221,3 @@ def homework_detail(request, classroom_id, homework_id):
 
     return render(request, 'faculty/homework.html', {'homework_form': homework_form})
     # see submitted hw-s
-
