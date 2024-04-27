@@ -155,8 +155,9 @@ class HomeworkForm(forms.ModelForm):
 
 
 class HomeworkSubmissionForm(forms.ModelForm):
-    homework_url = forms.URLField(max_length=200)
+    homework_url = forms.URLField(max_length=200, required=False)
+    homework_text = forms.CharField(widget=forms.Textarea, required=False)
 
     class Meta:
         model = StudentHomework
-        field = ['homework_url']
+        fields = ['homework_url', 'homework_text']

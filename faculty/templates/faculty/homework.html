@@ -2,23 +2,36 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Homework Details</title>
 </head>
 <body>
-    {% if user.is_lecturer() %}
-        <form method="post" >
+    <h2>{{ homework.title }}</h2>
+    <p>{{ homework.description }}</p>
+    <p>Due Date: {{ homework.due_date }}</p>
+
+    {% if request.user.is_lecturer %}
+        <form method="post">
             {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit">Create</button>
+            {{ homework_form.as_p }}
+            <button type="submit">Update</button>
         </form>
+    {% elif request.user.is_student %}
+        {% if student_homework %}
+            <p>Your Submission:</p>
+            <p>Homework URL: {{ student_homework.homework_url }}</p>
+            <p>Homework Text: {{ student_homework.homework_text }}</p>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit">Update Submission</button>
+            </form>
+        {% else %}
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit">Submit Homework</button>
+            </form>
+        {% endif %}
     {% endif %}
-
-    {% for homework in homeworks %}
-        <a href="{% url 'homework' classroom_id=classroom.id homework_id=homework.id %}">View homework {{ homework.id }}</a>
-    {% endfor %}
-
-
-
-
 </body>
 </html>

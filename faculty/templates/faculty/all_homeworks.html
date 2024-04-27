@@ -5,10 +5,19 @@
     <title>All Homeworks</title>
 </head>
 <body>
+    <h2>Homeworks for {{ classroom.subject }}</h2>
     {% for homework in homeworks %}
-        <ol>
-            <li>{{ homework.title }} - {{ homework.due_date }}</li>
-        </ol>
+        <div>
+            <h3>{{ homework.title }}</h3>
+            <p>Due Date: {{ homework.due_date }}</p>
+            {% if homework.student_submissions.all|dictsort:"student.id"|first == request.user.id %}
+                <p>Status: Submitted</p>
+                <a href="{% url 'faculty:homework_detail' classroom.id homework.id %}">View Submission</a>
+            {% else %}
+                <p>Status: Incomplete</p>
+                <a href="{% url 'faculty:homework_detail' classroom.id homework.id %}">Submit Homework</a>
+            {% endif %}
+        </div>
     {% endfor %}
 </body>
 </html>

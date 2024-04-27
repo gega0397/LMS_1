@@ -1,7 +1,8 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
-from faculty.models import CustomUser, StudentFaculty, Classroom, StudentSubject, Homework
-from faculty.forms import CustomUserCreationForm, LoginForm, StudentProfileForm, ClassroomCreationForm, HomeworkForm
+from faculty.models import CustomUser, StudentFaculty, Classroom, StudentSubject, Homework, StudentHomework
+from faculty.forms import CustomUserCreationForm, LoginForm, StudentProfileForm, ClassroomCreationForm, HomeworkForm, \
+    HomeworkSubmissionForm
 from django.contrib import messages
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
@@ -180,13 +181,15 @@ def download_file(request, request_id):
 
 @login_required
 def homework_view(request, classroom_id):
-    homeworks = Homework.objects.filter(classroom_id=classroom_id).order_by('-is_active', '-due_date')
-    classroom = Classroom.objects.get(id=classroom_id)
-    students = classroom.students.all()
+    classroom = get_object_or_404(Classroom, id=classroom_id)
+    homeworks = Homework.objects.filter(classroom=classroom).order_by('-is_active', '-due_date')
 
-    if request.user.is_student() not in students:
-        pass
-
+    if request.user.is_student():
+        student_enrollment = StudentSubject.objects.filter(student=request.user, classroom=classroom).exists()
+        if not student_enrollment:
+            messages.error(request, "You are not enrolled in this classroom.")
+            return redirect('faculty:profile')
+        return render(request, 'faculty/all_homeworks.html', {'homeworks': homeworks, 'classroom': classroom})
 
     create_homework = HomeworkForm()
     if request.method == "POST":
@@ -207,7 +210,29 @@ def homework_detail(request, classroom_id, homework_id):
     lecturer = classroom.lecturer
 
     if request.user.is_student():
-        pass
+        student_enrollment = StudentSubject.objects.filter(student=request.user, classroom=classroom).exists()
+        if not student_enrollment:
+            messages.error(request, "You are not enrolled in this classroom.")
+            return redirect('faculty:profile')
+
+        try:
+            student_homework = StudentHomework.objects.get(student=request.user, homework=homework)
+        except StudentHomework.DoesNotExist:
+            student_homework = None
+
+        if request.method == 'POST':
+            form = HomeworkSubmissionForm(request.POST, instance=student_homework)
+            if form.is_valid():
+                submission = form.save(commit=False)
+                submission.student = request.user
+                submission.homework = homework
+                submission.save()
+                messages.success(request, "Homework submitted successfully.")
+                return redirect('faculty:homework_view', classroom_id=classroom.id)
+        else:
+            form = HomeworkSubmissionForm(instance=student_homework)
+
+        return render(request, 'faculty/homework.html', {'form': form, 'homework': homework})
 
     if request.user != lecturer:
         redirect('faculty:profile')
@@ -221,3 +246,24 @@ def homework_detail(request, classroom_id, homework_id):
 
     return render(request, 'faculty/homework.html', {'homework_form': homework_form})
     # see submitted hw-s
+
+
+@login_required
+def create_homework(request):
+    form = HomeworkForm()
+
+    if request.method == "POST":
+        form = HomeworkForm(request.POST)
+        if form.is_valid():
+            homework = form.save()
+            homework.save()
+            return redirect('faculty:homework_list')
+
+    return render(request, 'faculty/create_homework.html', {'form': form})
+
+
+@login_required
+def homework_list(request):
+    if request.method == 'GET':
+        homeworks = Homework.objects.all()
+        return render(request, 'faculty/all_homeworks.html', {'homeworks': homeworks})
