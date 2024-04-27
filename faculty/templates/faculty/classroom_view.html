@@ -49,6 +49,9 @@
             {% endif %}
         </div>
 
+        <p><a href="{% url 'faculty:homeworks' classroom_id=classroom.id %}">View Homeworks</a></p>
+<!--    <a href="{% url 'homework' classroom_id=classroom.id homework_id=homework.id %}">View Homework</a>-->
+
         <p><a href="{% url 'faculty:profile' %}">Back to Profile</a></p>
 
 </div>

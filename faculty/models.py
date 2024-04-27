@@ -60,19 +60,6 @@ class Faculty(models.Model):
         return self.name
 
 
-class Homework(models.Model):
-    title = models.CharField(max_length=100)
-    description = models.TextField()
-    due_date = models.DateTimeField(default=timezone.now)
-
-    class Meta:
-        verbose_name = _('Homework')
-        verbose_name_plural = _('Homeworks')
-
-    def __str__(self):
-        return self.title
-
-
 class Classroom(models.Model):
     students = models.ManyToManyField(CustomUser, related_name="classrooms", limit_choices_to={'user_type': 'student'},
                                       verbose_name=_("Students"))
@@ -91,6 +78,21 @@ class Classroom(models.Model):
 
     def __str__(self):
         return f'{self.subject} {self.lecturer}'
+
+
+class Homework(models.Model):
+    title = models.CharField(max_length=100, verbose_name=_('Title'))
+    description = models.TextField(verbose_name=_('Description'))
+    due_date = models.DateTimeField(default=timezone.now, verbose_name=_('Due_date'))
+    classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE, verbose_name=_('Classroom'))
+    is_active = models.BooleanField(verbose_name=_('Is_Active'), default=True)
+
+    class Meta:
+        verbose_name = _('Homework')
+        verbose_name_plural = _('Homeworks')
+
+    def __str__(self):
+        return self.title
 
 
 class StudentFaculty(models.Model):

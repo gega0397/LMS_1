@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    {% if user.is_lecturer() %}
+        <form method="post" >
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Create</button>
+        </form>
+    {% endif %}
+
+    {% for homework in homeworks %}
+        <a href="{% url 'homework' classroom_id=classroom.id homework_id=homework.id %}">View homework {{ homework.id }}</a>
+    {% endfor %}
+
+
+
+
+</body>
+</html>
