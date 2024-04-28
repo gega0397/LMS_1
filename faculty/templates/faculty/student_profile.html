@@ -62,8 +62,8 @@
             {{ form.as_p }}
             <button type="submit">Save</button>
         </form>
-    {%  elif faculties %}
-        <p> Your status is inactive, pleas contact administration </p>
+    {%  elif faculties and not faculty %}
+        <p> Your status is inactive, please contact administration </p>
     {% endif %}
     {% if faculty and is_open_to_choose and enrolled_classrooms.count < max_classroom %}
         <h2>Choose Classroom</h2>
@@ -103,14 +103,7 @@
 {% endif %}
 
     {% if enrolled_classrooms %}
-        <h2>Your Homework</h2>
-        <ul>
-            {% for enrollment in enrolled_classrooms %}
-                <li class="classroom-item">
-                    <a href="{% url 'faculty:homeworks' enrollment.id %}">Homework for {{ enrollment.subject }}</a>
-                </li>
-            {% endfor %}
-        </ul>
+                    <a href="{% url 'faculty:homework_list' %}">Homeworks</a>
     {% endif %}
 
 </div>

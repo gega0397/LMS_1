@@ -5,19 +5,40 @@
     <title>All Homeworks</title>
 </head>
 <body>
-    <h2>Homeworks for {{ classroom.subject }}</h2>
-    {% for homework in homeworks %}
-        <div>
-            <h3>{{ homework.title }}</h3>
-            <p>Due Date: {{ homework.due_date }}</p>
-            {% if homework.student_submissions.all|dictsort:"student.id"|first == request.user.id %}
-                <p>Status: Submitted</p>
-                <a href="{% url 'faculty:homework_detail' classroom.id homework.id %}">View Submission</a>
-            {% else %}
-                <p>Status: Incomplete</p>
-                <a href="{% url 'faculty:homework_detail' classroom.id homework.id %}">Submit Homework</a>
-            {% endif %}
-        </div>
-    {% endfor %}
+    {% if classrooms %}
+        <h2>Submitted Homeworks</h2>
+        {% if submitted_homeworks %}
+            <ul>
+                {% for homework in submitted_homeworks %}
+                    <li>
+                        <a href="{% url 'faculty:homework_detail' classroom_id=homework.classroom.id homework_id=homework.id %}">
+                            {{ homework.title }} ({{ homework.classroom.subject }})
+                        </a>
+                        <br>
+                        Due Date: {{ homework.homework.due_date }}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No submitted homeworks found.</p>
+        {% endif %}
+
+        <h2>Unsubmitted Homeworks</h2>
+        {% if unsubmitted_homeworks %}
+            <ul>
+                {% for homework in unsubmitted_homeworks %}
+                    <li>
+                        <a href="{% url 'faculty:homework_detail' classroom_id=homework.classroom.id homework_id=homework.id %}">
+                            {{ homework.title }} ({{ homework.classroom.subject }})
+                        </a>
+                        <br>
+                        Due Date: {{ homework.due_date }}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No unsubmitted homeworks found.</p>
+        {% endif %}
+    {% endif %}
 </body>
 </html>
