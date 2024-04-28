@@ -95,19 +95,18 @@ def profile_view(request):
         return render(request, 'faculty/student_profile.html', context)
 
     if user.is_lecturer():
-        form = ClassroomCreationForm(request.POST, request.FILES)
-        if request.method == 'POST' and form.is_valid():
-            classroom = form.save(commit=False)
+        classroom_creation_form = ClassroomCreationForm(request.POST, request.FILES)
+        if request.method == 'POST' and classroom_creation_form.is_valid():
+            classroom = classroom_creation_form.save(commit=False)
             classroom.lecturer = user
             classroom.save()
-            classroom.subject_id = form.cleaned_data['subject'].id
             return redirect('faculty:profile')
 
         classrooms = Classroom.objects.filter(lecturer=user)
 
         context = {
             'user': user,
-            'form': form,
+            'classroom_creation_form': classroom_creation_form,
             'classrooms': classrooms,
         }
         return render(request, 'faculty/lecturer_profile.html', context)
@@ -132,12 +131,12 @@ def classroom_view(request, classroom_id):
             return redirect('faculty:profile')
 
         enrolled_students = classroom.studentsubject_set.all()
-        form1 = HomeworkForm()
+        homework_form = HomeworkForm()
 
         return render(request, 'faculty/lecturer_classroom_view.html', {
             'classroom': classroom,
             'enrolled_students': enrolled_students,
-            'form1': form1
+            'homework_form': homework_form
         })
 
     messages.error(request, 'You are not authorized to view this classroom.')
@@ -191,22 +190,32 @@ def homework_view(request, classroom_id):
             return redirect('faculty:profile')
         return render(request, 'faculty/all_homeworks.html', {'homeworks': homeworks, 'classroom': classroom})
 
+    if request.user.is_lecturer():
+        if classroom.lecturer != request.user:
+            messages.error(request, 'You are not the lecturer for this classroom.')
+            return redirect('faculty:profile')
+
     homework_form = HomeworkForm()
     if request.method == "POST":
         homework_form = HomeworkForm(request.POST)
-        if create_homework.is_valid():
-            homework = create_homework.save(commit=False)
+        if homework_form.is_valid():
+            homework = homework_form.save(commit=False)
+            homework.classroom = classroom
             homework.save()
-            return redirect('faculty:homework')
+            return redirect('faculty:homeworks', classroom_id=classroom.id)
 
-    return render(request, 'faculty/homework.html', {'homeworks': homeworks, 'form': homework_form, 'user': request.user})
+    return render(request, 'faculty/homework.html', {'homeworks': homeworks,
+                                                     'homework_form': homework_form,
+                                                     'user': request.user,
+                                                     'classroom': classroom,
+                                                     })
 
 
 @login_required
 def homework_detail(request, classroom_id, homework_id):
     homework = get_object_or_404(Homework, pk=homework_id)
     classroom = get_object_or_404(Classroom, id=classroom_id)
-    student_list = Classroom.students.all
+    student_list = classroom.students.all()
     lecturer = classroom.lecturer
 
     if request.user.is_student():

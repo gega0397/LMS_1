@@ -54,7 +54,7 @@
             <h2>Create Classroom</h2>
             <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
-                {{ form.as_p }}
+                {{ classroom_creation_form.as_p }}
                 <button type="submit">Create</button>
             </form>
         </div>

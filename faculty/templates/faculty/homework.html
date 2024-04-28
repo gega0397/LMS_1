@@ -33,5 +33,8 @@
             </form>
         {% endif %}
     {% endif %}
+    {% for homework in homeworks %}
+        <a href="{% url 'faculty:homework_detail' classroom_id=classroom.id homework_id=homework.id %}">View homework {{ homework.id }}</a>
+    {% endfor %}
 </body>
 </html>
