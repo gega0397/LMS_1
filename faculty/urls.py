@@ -1,7 +1,7 @@
 from django.urls import path, re_path
 from django.views.generic import RedirectView, TemplateView
 from faculty.views import register_view, login_view, logout_view, profile_view, join_classroom, classroom_view, \
-    download_file, homework_view, homework_detail, homework_list, create_homework
+    download_file, homework_view, homework_detail, homework_list, create_homework, attendance
 
 app_name = 'faculty'
 
@@ -19,5 +19,6 @@ urlpatterns = [
     path('classroom/<int:classroom_id>/homework/', homework_view, name='homeworks'),
     path('classroom/<int:classroom_id>/homework/<int:homework_id>/', homework_detail, name='homework_detail'),
     path('classroom/<int:classroom_id>/homework/<int:homework_id>/submit/', homework_detail, name='homework_submission'),
+    path('classroom/<int:classroom_id>/attendance/<int:attendance_id>/', attendance, name='attendance'),
     re_path(r'^.*$', RedirectView.as_view(pattern_name='faculty:home')),
 ]

@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from faculty.models import CustomUser, StudentFaculty, Classroom, StudentSubject, Homework, StudentHomework
 from faculty.forms import CustomUserCreationForm, LoginForm, StudentProfileForm, ClassroomCreationForm, HomeworkForm, \
-    HomeworkSubmissionForm
+    HomeworkSubmissionForm, ClassroomCalendarForm, StudentAttendanceForm, ClassroomAttendance, ClassroomCalendar
 from django.conf import settings
 from django.contrib import messages
 from django.http import HttpResponse
@@ -91,7 +91,7 @@ def profile_view(request):
         classrooms = Classroom.objects.filter(subject__in=subjects, is_full=False).exclude(students=user)
 
         enrolled_classrooms = Classroom.objects.filter(students=user)
-        print(list(enrolled_classrooms))
+        if settings.DEBUG: print(list(enrolled_classrooms))
 
         context = {
             'user': user,
@@ -130,6 +130,10 @@ def profile_view(request):
 def classroom_view(request, classroom_id):
     user = request.user
     classroom = get_object_or_404(Classroom, id=classroom_id)
+    calendar_form = ClassroomCalendarForm(classroom=classroom)
+    debug = settings.DEBUG
+    calendar = classroom.calendar.all()
+
 
     if user.is_student():
         student_enrollment = Classroom.objects.get(students=user, id=classroom.id)
@@ -144,13 +148,27 @@ def classroom_view(request, classroom_id):
             messages.error(request, 'You are not the lecturer for this classroom.')
             return redirect('faculty:profile')
 
+        if request.method == 'POST':
+            calendar_form = ClassroomCalendarForm(classroom, request.POST)
+            if settings.DEBUG: print(calendar_form.is_valid())
+            if calendar_form.is_valid():
+                calendar_form.save(classroom)
+                return redirect('faculty:classroom_view', classroom_id=classroom.id)
+            else:
+                if settings.DEBUG:
+                    print(calendar_form.errors)
+
         enrolled_students = classroom.students.all()
         homework_form = HomeworkForm()
 
         return render(request, 'faculty/lecturer_classroom_view.html', {
             'classroom': classroom,
             'enrolled_students': enrolled_students,
-            'homework_form': homework_form
+            'homework_form': homework_form,
+            'calendar_form': calendar_form,
+            'calendar': calendar,
+            'debug': debug,
+
         })
 
     messages.error(request, 'You are not authorized to view this classroom.')
@@ -172,7 +190,7 @@ def join_classroom(request, classroom_id):
         else:
             # Student can join the classroom
             student_subject = classroom.students.add(user)
-            print('added')
+            if settings.DEBUG: print('added')
             # If the classroom is now full, mark it as full
             if classroom.students.count() >= classroom.max_students:
                 classroom.is_full = True
@@ -230,10 +248,11 @@ def homework_detail(request, classroom_id, homework_id):
     homework = get_object_or_404(Homework, pk=homework_id)
     classroom = get_object_or_404(Classroom, id=classroom_id)
     student_list = classroom.students.all()
+
     lecturer = classroom.lecturer
 
     if request.user.is_student():
-        student_enrollment = Classroom.objects.filter(student=request.user, classroom=classroom).exists()
+        student_enrollment = Classroom.objects.filter(students=request.user, id=classroom_id).exists()
         if not student_enrollment:
             messages.error(request, "You are not enrolled in this classroom.")
             return redirect('faculty:profile')
@@ -292,3 +311,26 @@ def homework_list(request):
     if request.method == 'GET':
         homeworks = Homework.objects.all()
         return render(request, 'faculty/all_homeworks.html', {'homeworks': homeworks})
+
+
+
+@login_required
+def attendance(request, classroom_id, attendance_id):
+    attendance = get_object_or_404(ClassroomCalendar, pk=attendance_id)
+    classroom = get_object_or_404(Classroom, id=classroom_id)
+    student_list = classroom.students.all()
+    lecturer = classroom.lecturer
+
+    if not request.user == lecturer:
+        messages.error(request, 'You are not authorized to view this page.')
+        return redirect('faculty:profile')
+    attendance_form = StudentAttendanceForm(attendance)
+
+    if request.POST:
+        attendance_form = StudentAttendanceForm(attendance, request.POST)
+        if attendance_form.is_valid():
+            attendance_form.save(attendance)
+            messages.success(request, "Attendance submitted successfully.")
+            return redirect('faculty:attendance', classroom_id=classroom.id, attendance_id=attendance_id)
+
+    return render(request, 'faculty/attendance.html', {'attendance_form': attendance_form, 'title': 'attendance'})

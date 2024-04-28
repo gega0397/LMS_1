@@ -1,18 +1,16 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.utils import timezone
-from django.conf import settings
-
 from faculty.choices import USER_TYPE_CHOICES, USER_STATUS_CHOICES, MAX_CLASSROOM_SIZE, DEFAULT_NUMBER_OF_CLASSES
 from django.utils.translation import gettext_lazy as _
 from faculty.managers import CustomUserManager
+
 
 class CustomUser(AbstractUser):
     username = None
     email = models.EmailField(_("email address"), unique=True)
     user_type = models.CharField(max_length=10, choices=USER_TYPE_CHOICES, blank=True, null=True,
                                  verbose_name=_("User Type"))
-    is_authorized = models.BooleanField(default=True if settings.DEBUG else False, verbose_name=_("Is Authorized"))
+    is_authorized = models.BooleanField(default=False, verbose_name=_("Is Authorized"))
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ['user_type', 'first_name', 'last_name']
@@ -80,34 +78,11 @@ class Classroom(models.Model):
         return f'{self.subject} {self.lecturer}'
 
 
-class Homework(models.Model):
-    title = models.CharField(max_length=100, verbose_name=_('Title'))
-    description = models.TextField(verbose_name=_('Description'))
-    due_date = models.DateTimeField(default=timezone.now, verbose_name=_('Due_date'))
-    classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE, verbose_name=_('Classroom'))
-    is_active = models.BooleanField(verbose_name=_('Is_Active'), default=True)
-
-    class Meta:
-        verbose_name = _('Homework')
-        verbose_name_plural = _('Homeworks')
-
-    def __str__(self):
-        return self.title
-
-
-class StudentHomework(models.Model):
-    student = models.ForeignKey(CustomUser, related_name="homewor",
-                                on_delete=models.CASCADE, verbose_name=_('Student'))
-    homework = models.ForeignKey(Homework, on_delete=models.CASCADE, verbose_name=_('Homework'))
-    homework_url = models.URLField(max_length=200, verbose_name=_('Homework URL'))
-
-
 class StudentFaculty(models.Model):
     student = models.ForeignKey(CustomUser, on_delete=models.CASCADE,
                                 limit_choices_to={'user_type': 'student'}, verbose_name=_("Student"))
     faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE, verbose_name=_("Faculty"))
-    status = models.CharField(max_length=10, choices=USER_STATUS_CHOICES,
-                              default='inactive' if not settings.DEBUG else 'active',
+    status = models.CharField(max_length=10, choices=USER_STATUS_CHOICES, default='inactive',
                               verbose_name=_("User Type"))
 
     class Meta:
@@ -115,27 +90,26 @@ class StudentFaculty(models.Model):
         verbose_name_plural = _('Student Faculties')
 
     def __str__(self):
-        return f"{self.student}: {self.faculty} >> {self.status}"
+        return f"{self.student}: {self.faculty}"
 
 
 class ClassroomCalendar(models.Model):
-    classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE, related_name="calendar", verbose_name=_("Classroom"))
+    classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE, verbose_name=_("Classroom"))
     date = models.DateField(verbose_name=_("Date"))
     start_time = models.TimeField(verbose_name=_("Start Time"))
-    duration = models.IntegerField(verbose_name=_("Duration"), default=2)
+    end_time = models.TimeField(verbose_name=_("End Time"))
 
     class Meta:
         verbose_name = _('Classroom Calendar')
         verbose_name_plural = _('Classroom Calendars')
 
     def __str__(self):
-        return f"{self.classroom}: {self.date} {self.start_time} - {self.duration}Hours"
+        return f"{self.classroom}: {self.date} {self.start_time} - {self.end_time}"
 
 
 class ClassroomAttendance(models.Model):
-    classroom_date = models.ForeignKey(ClassroomCalendar, related_name="attendance", on_delete=models.CASCADE,
-                                       verbose_name=_("Classroom"))
-    student = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="attendance",
+    classroom_date = models.ForeignKey(ClassroomCalendar, on_delete=models.CASCADE, verbose_name=_("Classroom"))
+    student = models.ForeignKey(CustomUser, on_delete=models.CASCADE,
                                 limit_choices_to={'user_type': 'student'}, verbose_name=_("Student"))
     status = models.BooleanField(default=False, verbose_name=_("Status"))
 

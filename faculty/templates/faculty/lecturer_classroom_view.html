@@ -44,6 +44,14 @@
             <h2>{{ classroom.subject }}</h2>
             <p><strong>Max Students:</strong> {{ classroom.max_students }}</p>
 
+            {%  if debug and not calendar %}
+
+                <form method="post">
+            {% csrf_token %}
+            {{ calendar_form.as_p }}
+            <button type="submit">Save</button>
+            </form>
+            {% endif %}
             {% if classroom.description %}
                 <h3>Description</h3>
                 <p>{{ classroom.description }}</p>
@@ -66,7 +74,11 @@
             {% endif %}
         </div>
 
+
         <p><a href="{% url 'faculty:homeworks' classroom.id %}">Homeworks</a></p>
+        {%  for date_ in calendar %}
+            <a href="{% url 'faculty:attendance' classroom_id=classroom.id attendance_id=date_.id %}"> {{ date_ }}</a>
+        {% endfor %}
         <p><a href="{% url 'faculty:profile' %}">Back to Profile</a></p>
 
 </div>

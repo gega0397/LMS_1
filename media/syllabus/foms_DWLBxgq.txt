@@ -2,10 +2,9 @@ from django import forms
 from django.contrib.auth import password_validation
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from django.core.exceptions import ObjectDoesNotExist
-from faculty.models import CustomUser, StudentFaculty, Faculty, Classroom, Subject, ClassroomAttendance, \
-    ClassroomCalendar, \
-    Homework, StudentHomework
-from faculty.choices import FORM_TYPE_CHOICES
+
+from .models import CustomUser, StudentFaculty, Faculty, Classroom, Subject, ClassroomAttendance, ClassroomCalendar
+from .choices import FORM_TYPE_CHOICES
 
 
 class CustomUserCreationForm(UserCreationForm):
@@ -79,11 +78,10 @@ class JoinClassroomForm(forms.Form):
 
 class ClassroomCreationForm(forms.ModelForm):
     subject = forms.ModelChoiceField(queryset=Subject.objects.all())
-    syllabus = forms.FileField(required=False)
 
     class Meta:
         model = Classroom
-        fields = ['syllabus', 'subject']
+        fields = ['syllabus']
 
 
 class ClassroomCalendarForm(forms.Form):
@@ -92,24 +90,25 @@ class ClassroomCalendarForm(forms.Form):
         for i in range(classroom.number_of_classes):
             self.fields[f'date_{i}'] = forms.DateField(label=f'Date {i + 1}')
             self.fields[f'start_time_{i}'] = forms.TimeField(label=f'Start Time {i + 1}')
+            self.fields[f'end_time_{i}'] = forms.TimeField(label=f'End Time {i + 1}')
 
     def save(self, classroom):
-        print('saving')
         for i in range(classroom.number_of_classes):
             date = self.cleaned_data[f'date_{i}']
             start_time = self.cleaned_data[f'start_time_{i}']
+            end_time = self.cleaned_data[f'end_time_{i}']
             ClassroomCalendar.objects.create(
                 classroom=classroom,
                 date=date,
                 start_time=start_time,
+                end_time=end_time
             )
 
 
 class StudentAttendanceForm(forms.Form):
     def __init__(self, classroom_calendar, *args, **kwargs):
         super(StudentAttendanceForm, self).__init__(*args, **kwargs)
-        students = classroom_calendar.classroom.students.all()
-        print([students])
+        students = classroom_calendar.classroom_date.classroom.students.all()
         matching_instances = ClassroomAttendance.objects.filter(classroom_date=classroom_calendar)
         for student in students:
             try:
@@ -121,16 +120,16 @@ class StudentAttendanceForm(forms.Form):
             self.fields[f'{student.id}'] = forms.BooleanField(
                 label=f'{student}',
                 required=False,
-                initial=initial_status,
-                widget=forms.CheckboxInput()
+                initial=initial_status
             )
 
-    def save(self, classroom_calendar):
+    def save(self, classroom_calendar, date):
         for student_id, value in self.cleaned_data.items():
             if value:
                 student_attendance, created = ClassroomAttendance.objects.get_or_create(
                     classroom_date_id=classroom_calendar.id,
                     student_id=int(student_id),
+                    date=date,
                     defaults={'status': True}
                 )
                 if not created:
@@ -140,24 +139,5 @@ class StudentAttendanceForm(forms.Form):
                 ClassroomAttendance.objects.filter(
                     classroom_date_id=classroom_calendar.id,
                     student_id=int(student_id),
+                    date=date
                 ).delete()
-
-
-class HomeworkForm(forms.ModelForm):
-    title = forms.CharField(label='Title', max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
-    description = forms.CharField(label='Description', widget=forms.Textarea(attrs={'class': 'form-control'}))
-    due_date = forms.DateTimeField(label='Due Date', widget=forms.DateTimeInput(attrs={'class': 'form-control'}))
-    is_active = forms.BooleanField(label='Is Active', widget=forms.CheckboxInput())
-
-    class Meta:
-        model = Homework
-        fields = ['title', 'description', 'due_date', 'is_active']
-
-
-class HomeworkSubmissionForm(forms.ModelForm):
-    homework_url = forms.URLField(max_length=200, required=False)
-    homework_text = forms.CharField(widget=forms.Textarea, required=False)
-
-    class Meta:
-        model = StudentHomework
-        fields = ['homework_url', 'homework_text']
