@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from faculty.models import CustomUser, StudentFaculty, Classroom, StudentSubject, Homework, StudentHomework
 from faculty.forms import CustomUserCreationForm, LoginForm, StudentProfileForm, ClassroomCreationForm, HomeworkForm, \
     HomeworkSubmissionForm
+from django.conf import settings
 from django.contrib import messages
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
@@ -95,6 +96,7 @@ def profile_view(request):
         return render(request, 'faculty/student_profile.html', context)
 
     if user.is_lecturer():
+        debug_mode = settings.DEBUG
         classroom_creation_form = ClassroomCreationForm(request.POST, request.FILES)
         if request.method == 'POST' and classroom_creation_form.is_valid():
             classroom = classroom_creation_form.save(commit=False)
@@ -108,6 +110,7 @@ def profile_view(request):
             'user': user,
             'classroom_creation_form': classroom_creation_form,
             'classrooms': classrooms,
+            'debug_mode': debug_mode,
         }
         return render(request, 'faculty/lecturer_profile.html', context)
 
@@ -241,7 +244,8 @@ def homework_detail(request, classroom_id, homework_id):
         else:
             form = HomeworkSubmissionForm(instance=student_homework)
 
-        return render(request, 'faculty/homework.html', {'form': form, 'homework': homework})
+        return render(request, 'faculty/homework.html', {'form': form, 'homework': homework,
+                                                         'classroom': classroom})
 
     if request.user != lecturer:
         redirect('faculty:profile')
@@ -253,7 +257,8 @@ def homework_detail(request, classroom_id, homework_id):
         if homework_form.is_valid():
             homework_form.save()
 
-    return render(request, 'faculty/homework.html', {'homework_form': homework_form})
+    return render(request, 'faculty/homework.html', {'homework_form': homework_form,
+                                                     'classroom': classroom})
     # see submitted hw-s
 
 
