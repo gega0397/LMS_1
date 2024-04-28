@@ -78,6 +78,7 @@
         <p><a href="{% url 'faculty:homeworks' classroom.id %}">Homeworks</a></p>
         {%  for date_ in calendar %}
             <a href="{% url 'faculty:attendance' classroom_id=classroom.id attendance_id=date_.id %}"> {{ date_ }}</a>
+            <br>
         {% endfor %}
         <p><a href="{% url 'faculty:profile' %}">Back to Profile</a></p>
 
