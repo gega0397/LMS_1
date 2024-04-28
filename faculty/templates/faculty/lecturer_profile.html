@@ -67,16 +67,12 @@
                         <li>
                             {{ classroom.subject }} ({{ classroom.studentsubject_set.count }}/{{ classroom.max_students }})
                             <a href="{% url 'faculty:classroom_view' classroom.id %}">View Classroom</a>
+                            <a href="{% url 'faculty:homeworks' classroom.id %}">Show Homeworks</a>
                         </li>
                     {% endfor %}
                 </ul>
             </div>
         {% endif %}
-
-        <div>
-            <h2>View All Homeworks</h2>
-            <a href="{% url 'faculty:homeworks' %}" class="btn">Show homeworks</a>
-        </div>
 
 
 </div>

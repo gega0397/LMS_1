@@ -132,7 +132,7 @@ def classroom_view(request, classroom_id):
             return redirect('faculty:profile')
 
         enrolled_students = classroom.studentsubject_set.all()
-        form1 = HomeworkForm
+        form1 = HomeworkForm()
 
         return render(request, 'faculty/lecturer_classroom_view.html', {
             'classroom': classroom,
@@ -191,15 +191,15 @@ def homework_view(request, classroom_id):
             return redirect('faculty:profile')
         return render(request, 'faculty/all_homeworks.html', {'homeworks': homeworks, 'classroom': classroom})
 
-    create_homework = HomeworkForm()
+    homework_form = HomeworkForm()
     if request.method == "POST":
-        create_homework = HomeworkForm(request.POST)
+        homework_form = HomeworkForm(request.POST)
         if create_homework.is_valid():
             homework = create_homework.save(commit=False)
             homework.save()
             return redirect('faculty:homework')
 
-    return render(request, 'faculty/homework.html', {'homeworks': homeworks, 'form': create_homework, 'user': request.user})
+    return render(request, 'faculty/homework.html', {'homeworks': homeworks, 'form': homework_form, 'user': request.user})
 
 
 @login_required
