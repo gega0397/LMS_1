@@ -54,14 +54,19 @@
 
     <h1>Welcome, {{ user.first_name }} {{ user.last_name }}</h1>
 
-    {% if not faculty %}
+
+    {% if not faculty and not faculties %}
         <h2>Select Faculty</h2>
         <form method="post">
             {% csrf_token %}
             {{ form.as_p }}
             <button type="submit">Save</button>
         </form>
-    {% elif is_open_to_choose and enrolled_classrooms.count < max_classroom %}
+    {%  elif faculties %}
+        <p> Your status is inactive, pleas contact administration </p>
+    {% endif %}
+    {% if faculty and is_open_to_choose and enrolled_classrooms.count < max_classroom %}
+        <h2>Choose Classroom</h2>
         {% if subjects %}
             <h2>Subjects</h2>
             <ul>
@@ -73,11 +78,7 @@
                                 {% if classroom.subject == subject %}
                                     <li class="classroom-item">
                                         {{ classroom.lecturer.first_name }} {{ classroom.lecturer.last_name }} ({{ classroom.studentsubject_set.count }}/{{ classroom.max_students }})
-                                        {% if classroom not in enrolled_classrooms %}
                                             <a href="{% url 'faculty:join_classroom' classroom.pk %}">Join</a>
-                                        {% else %}
-                                            <a href="{% url 'faculty:classroom_view' classroom.id %}">View Classroom</a>
-                                        {% endif %}
                                     </li>
                                 {% endif %}
                             {% endfor %}
@@ -93,8 +94,8 @@
     <ul>
         {% for enrollment in enrolled_classrooms %}
             <li class="classroom-item">
-                <a href="{% url 'faculty:classroom_view' enrollment.classroom.id %}">
-                    {{ enrollment.classroom.subject }} - {{ enrollment.classroom.lecturer.first_name }} {{ enrollment.classroom.lecturer.last_name }}
+                <a href="{% url 'faculty:classroom_view' enrollment.id %}">
+                    {{ enrollment.subject }} - {{ enrollment.lecturer.first_name }} {{ enrollment.lecturer.last_name }}
                 </a>
             </li>
         {% endfor %}
@@ -106,7 +107,7 @@
         <ul>
             {% for enrollment in enrolled_classrooms %}
                 <li class="classroom-item">
-                    <a href="{% url 'faculty:homeworks' enrollment.classroom.id %}">Homework for {{ enrollment.classroom.subject }}</a>
+                    <a href="{% url 'faculty:homeworks' enrollment.id %}">Homework for {{ enrollment.subject }}</a>
                 </li>
             {% endfor %}
         </ul>

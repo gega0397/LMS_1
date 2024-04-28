@@ -1,18 +1,19 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils import timezone
+from django.conf import settings
 
 from faculty.choices import USER_TYPE_CHOICES, USER_STATUS_CHOICES, MAX_CLASSROOM_SIZE, DEFAULT_NUMBER_OF_CLASSES
 from django.utils.translation import gettext_lazy as _
 from faculty.managers import CustomUserManager
 
-
+print(settings.DEBUG)
 class CustomUser(AbstractUser):
     username = None
     email = models.EmailField(_("email address"), unique=True)
     user_type = models.CharField(max_length=10, choices=USER_TYPE_CHOICES, blank=True, null=True,
                                  verbose_name=_("User Type"))
-    is_authorized = models.BooleanField(default=False, verbose_name=_("Is Authorized"))
+    is_authorized = models.BooleanField(default=True if settings.DEBUG else False, verbose_name=_("Is Authorized"))
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ['user_type', 'first_name', 'last_name']
@@ -105,7 +106,8 @@ class StudentFaculty(models.Model):
     student = models.ForeignKey(CustomUser, on_delete=models.CASCADE,
                                 limit_choices_to={'user_type': 'student'}, verbose_name=_("Student"))
     faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE, verbose_name=_("Faculty"))
-    status = models.CharField(max_length=10, choices=USER_STATUS_CHOICES, default='inactive',
+    status = models.CharField(max_length=10, choices=USER_STATUS_CHOICES,
+                              default='inactive' if not settings.DEBUG else 'active',
                               verbose_name=_("User Type"))
 
     class Meta:
@@ -113,7 +115,7 @@ class StudentFaculty(models.Model):
         verbose_name_plural = _('Student Faculties')
 
     def __str__(self):
-        return f"{self.student}: {self.faculty}"
+        return f"{self.student}: {self.faculty} >> {self.status}"
 
 
 class ClassroomCalendar(models.Model):

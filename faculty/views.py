@@ -67,8 +67,16 @@ def profile_view(request):
     user = request.user
 
     if user.is_student():
-        student_faculty = StudentFaculty.objects.filter(student=user.id).first()
-        print(student_faculty, user.id)
+        try:
+            student_faculties = StudentFaculty.objects.filter(student=user.id)
+            student_faculty = [student for student in student_faculties if student.status == 'active']
+            if len(student_faculty):
+                student_faculty = student_faculty[0]
+            else:
+                student_faculty = None
+        except StudentFaculty.DoesNotExist:
+            student_faculties = None
+            student_faculty = None
         form = StudentProfileForm(request.POST or None)
         if request.method == 'POST' and form.is_valid():
             obj = form.save(commit=False)
@@ -80,8 +88,10 @@ def profile_view(request):
         if student_faculty and student_faculty.faculty:
             subjects = student_faculty.faculty.subjects.all()
 
-        classrooms = Classroom.objects.filter(subject__in=subjects).exclude(studentsubject__student=user.id)
-        enrolled_classrooms = StudentSubject.objects.filter(student=user.id)
+        classrooms = Classroom.objects.filter(subject__in=subjects, is_full=False).exclude(students=user)
+
+        enrolled_classrooms = Classroom.objects.filter(students=user)
+        print(list(enrolled_classrooms))
 
         context = {
             'user': user,
@@ -89,6 +99,7 @@ def profile_view(request):
             'subjects': subjects,
             'classrooms': classrooms,
             'faculty': student_faculty,
+            'faculties': student_faculties,
             'enrolled_classrooms': enrolled_classrooms,
             'max_classroom': MAX_STUDENT_CLASSROOM,
             'is_open_to_choose': IS_OPEN_TO_CHOOSE,
@@ -121,7 +132,7 @@ def classroom_view(request, classroom_id):
     classroom = get_object_or_404(Classroom, id=classroom_id)
 
     if user.is_student():
-        student_enrollment = StudentSubject.objects.filter(student=user, classroom=classroom).first()
+        student_enrollment = Classroom.objects.get(students=user, id=classroom.id)
         if not student_enrollment:
             messages.error(request, 'You are not enrolled in this classroom.')
             return redirect('faculty:profile')
@@ -133,7 +144,7 @@ def classroom_view(request, classroom_id):
             messages.error(request, 'You are not the lecturer for this classroom.')
             return redirect('faculty:profile')
 
-        enrolled_students = classroom.studentsubject_set.all()
+        enrolled_students = classroom.students.all()
         homework_form = HomeworkForm()
 
         return render(request, 'faculty/lecturer_classroom_view.html', {
@@ -155,15 +166,15 @@ def join_classroom(request, classroom_id):
         if classroom.is_full:
             # Classroom is full, display an error message
             messages.error(request, 'The classroom is full. You cannot join.')
-        elif StudentSubject.objects.filter(student=user, classroom=classroom).exists():
+        elif Classroom.objects.filter(students=user, id=classroom.id).exists():
             # Student has already joined this classroom
             messages.error(request, 'You have already joined this classroom.')
         else:
             # Student can join the classroom
-            student_subject = StudentSubject.objects.create(student=user, classroom=classroom)
-
+            student_subject = classroom.students.add(user)
+            print('added')
             # If the classroom is now full, mark it as full
-            if classroom.studentsubject_set.count() >= classroom.max_students:
+            if classroom.students.count() >= classroom.max_students:
                 classroom.is_full = True
                 classroom.save()
 
@@ -187,11 +198,11 @@ def homework_view(request, classroom_id):
     homeworks = Homework.objects.filter(classroom=classroom).order_by('-is_active', '-due_date')
 
     if request.user.is_student():
-        student_enrollment = StudentSubject.objects.filter(student=request.user, classroom=classroom).exists()
+        student_enrollment = Classroom.objects.filter(students=request.user, id=classroom_id).exists()
         if not student_enrollment:
             messages.error(request, "You are not enrolled in this classroom.")
             return redirect('faculty:profile')
-        return render(request, 'faculty/all_homeworks.html', {'homeworks': homeworks, 'classroom': classroom})
+        return render(request, 'faculty/homework.html', {'homeworks': homeworks, 'classroom': classroom})
 
     if request.user.is_lecturer():
         if classroom.lecturer != request.user:
@@ -222,7 +233,7 @@ def homework_detail(request, classroom_id, homework_id):
     lecturer = classroom.lecturer
 
     if request.user.is_student():
-        student_enrollment = StudentSubject.objects.filter(student=request.user, classroom=classroom).exists()
+        student_enrollment = Classroom.objects.filter(student=request.user, classroom=classroom).exists()
         if not student_enrollment:
             messages.error(request, "You are not enrolled in this classroom.")
             return redirect('faculty:profile')
