@@ -3,7 +3,8 @@ from django.db import models
 from django.utils import timezone
 from django.conf import settings
 
-from faculty.choices import USER_TYPE_CHOICES, USER_STATUS_CHOICES, MAX_CLASSROOM_SIZE, DEFAULT_NUMBER_OF_CLASSES
+from faculty.choices import USER_TYPE_CHOICES, USER_STATUS_CHOICES, MAX_CLASSROOM_SIZE, DEFAULT_NUMBER_OF_CLASSES,\
+    DEFAULT_LECTURE_DURATION
 from django.utils.translation import gettext_lazy as _
 from faculty.managers import CustomUserManager
 
@@ -122,7 +123,7 @@ class ClassroomCalendar(models.Model):
     classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE, related_name="calendar", verbose_name=_("Classroom"))
     date = models.DateField(verbose_name=_("Date"))
     start_time = models.TimeField(verbose_name=_("Start Time"))
-    duration = models.IntegerField(verbose_name=_("Duration"), default=2)
+    duration = models.IntegerField(verbose_name=_("Duration"), default=DEFAULT_LECTURE_DURATION)
 
     class Meta:
         verbose_name = _('Classroom Calendar')
