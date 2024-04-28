@@ -276,7 +276,7 @@ def homework_detail(request, classroom_id, homework_id):
 
         return render(request, 'faculty/homework.html', {'form': form, 'homework': homework,
                                                          'classroom': classroom})
-
+    # In case user is not lecturer nor student
     if request.user != lecturer:
         redirect('faculty:profile')
 
