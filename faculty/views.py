@@ -26,6 +26,8 @@ def profile_view(request):
             student_faculty = None
 
         form = StudentProfileForm(request.POST or None)
+        print(student_faculties)
+        print(student_faculty)
         if request.method == 'POST' and form.is_valid():
             obj = form.save(commit=False)
             obj.student = request.user
@@ -216,9 +218,10 @@ def homework_detail(request, classroom_id, homework_id):
                 submission = form.save(commit=False)
                 submission.student = request.user
                 submission.homework = homework
+                submission.classroom = classroom
                 submission.save()
                 messages.success(request, "Homework submitted successfully.")
-                return redirect('faculty:homework_view', classroom_id=classroom.id)
+                return redirect('faculty:homeworks', classroom_id=classroom.id)
         else:
             form = HomeworkSubmissionForm(instance=student_homework)
 
@@ -256,10 +259,31 @@ def create_homework(request):
 
 @login_required
 def homework_list(request):
-    if request.method == 'GET':
-        homeworks = Homework.objects.all()
-        return render(request, 'faculty/all_homeworks.html', {'homeworks': homeworks})
+    classrooms = Classroom.objects.filter(students=request.user)
+    homeworks = Homework.objects.filter(classroom__in=classrooms)
+    submitted_homeworks = StudentHomework.objects.filter(student=request.user)
+    unsubmitted_homeworks = homeworks.exclude(id__in=submitted_homeworks.values('homework_id'))
+    print([unsubmitted_homeworks])
 
+    if request.user.is_student():
+        if request.method == 'GET':
+            return render(request, 'faculty/all_homeworks.html', {'classrooms': classrooms,
+                                                'submitted_homeworks': submitted_homeworks,
+                                                'unsubmitted_homeworks': unsubmitted_homeworks})
+
+
+'''
+
+    gvchirdeba studenti +
+
+    gvchirdeba enrolled classroomebi +
+
+    gvchirdeba davalebebi klasrumebidan +
+
+    erti nawili achvenebs dasabmitebulebs
+
+    meore nawili achvenebs dasasabmitelebs
+'''
 
 
 @login_required
@@ -282,3 +306,5 @@ def attendance(request, classroom_id, attendance_id):
             return redirect('faculty:classroom_view', classroom_id=classroom.id)
 
     return render(request, 'faculty/attendance.html', {'attendance_form': attendance_form, 'title': 'attendance'})
+
+

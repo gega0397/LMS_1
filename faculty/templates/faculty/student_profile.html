@@ -103,14 +103,7 @@
 {% endif %}
 
     {% if enrolled_classrooms %}
-        <h2>Your Homework</h2>
-        <ul>
-            {% for enrollment in enrolled_classrooms %}
-                <li class="classroom-item">
-                    <a href="{% url 'faculty:homeworks' enrollment.id %}">Homework for {{ enrollment.subject }}</a>
-                </li>
-            {% endfor %}
-        </ul>
+                    <a href="{% url 'faculty:homework_list' %}">Homeworks</a>
     {% endif %}
 
 </div>

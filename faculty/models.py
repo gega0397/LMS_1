@@ -73,9 +73,11 @@ class Homework(models.Model):
 
 
 class StudentHomework(models.Model):
-    student = models.ForeignKey(CustomUser, related_name="homewor",
+    student = models.ForeignKey(CustomUser, related_name="homework",
                                 on_delete=models.CASCADE, verbose_name=_('Student'))
     homework = models.ForeignKey(Homework, on_delete=models.CASCADE, verbose_name=_('Homework'))
+    classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE, verbose_name=_('Classroom'))
+    homework_text = models.TextField(blank=True, null=True, default=None, verbose_name=_('Homework_text'))
     homework_url = models.URLField(max_length=200, verbose_name=_('Homework URL'))
 
 
