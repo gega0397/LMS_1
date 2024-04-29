@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
-from faculty.forms import CustomUserCreationForm, CustomUserChangeForm
+from users.forms import CustomUserCreationForm, CustomUserChangeForm
 from faculty.models import CustomUser, Subject, Faculty, Classroom, StudentSubject, StudentFaculty, Homework
 
 
