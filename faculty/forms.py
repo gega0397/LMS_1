@@ -2,58 +2,13 @@ from django import forms
 from django.contrib.auth import password_validation
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from django.core.exceptions import ObjectDoesNotExist
-from faculty.models import CustomUser, StudentFaculty, Faculty, Classroom, Subject, ClassroomAttendance, \
+from faculty.models import StudentFaculty, Faculty, Classroom, Subject, ClassroomAttendance, \
     ClassroomCalendar, \
     Homework, StudentHomework
-from faculty.choices import FORM_TYPE_CHOICES
 
 
-class CustomUserCreationForm(UserCreationForm):
-    email = forms.EmailField(required=False, widget=forms.EmailInput(attrs={'class': 'form-control'}))
-    user_type = forms.ChoiceField(choices=FORM_TYPE_CHOICES, required=False)
-    password1 = forms.CharField(
-        label="Password",
-        widget=forms.PasswordInput(attrs={'class': 'form-control', 'id': 'password-input'}),
-        help_text=password_validation.password_validators_help_text_html(),
-    )
-    password2 = forms.CharField(
-        label="Confirm Password",
-        widget=forms.PasswordInput(attrs={'class': 'form-control'}),
-    )
-
-    # Add a field for password strength
-    password_strength = forms.CharField(
-        widget=forms.HiddenInput(),
-        required=False,
-    )
-
-    class Meta:
-        model = CustomUser
-        fields = ("email", 'user_type', 'first_name', 'last_name')
 
 
-class CustomUserChangeForm(UserChangeForm):
-    class Meta:
-        model = CustomUser
-        fields = ("email", 'user_type', 'first_name', 'last_name')
-
-
-class LoginForm(forms.Form):
-    email = forms.CharField(
-        label='Email',
-        max_length=100,
-        widget=forms.TextInput(attrs={'class': 'form-control'}),
-    )
-    password = forms.CharField(
-        label='Password',
-        widget=forms.PasswordInput(attrs={'class': 'form-control', 'id': 'password-input'}),
-        help_text=password_validation.password_validators_help_text_html(),
-    )
-
-    def clean(self):
-        cleaned_data = super().clean()
-        # Perform additional cleaning or validation as needed
-        return cleaned_data
 
 
 class StudentProfileForm(forms.ModelForm):
@@ -90,8 +45,11 @@ class ClassroomCalendarForm(forms.Form):
     def __init__(self, classroom, *args, **kwargs):
         super(ClassroomCalendarForm, self).__init__(*args, **kwargs)
         for i in range(classroom.number_of_classes):
-            self.fields[f'date_{i}'] = forms.DateField(label=f'Date {i + 1}')
-            self.fields[f'start_time_{i}'] = forms.TimeField(label=f'Start Time {i + 1}')
+            self.fields[f'date_{i}'] = forms.DateField(label=f'Date {i + 1}',
+                                                       widget=forms.DateInput(attrs={'class': 'datepicker'}))
+            self.fields[f'start_time_{i}'] = forms.TimeField(label=f'Start Time {i + 1}',
+                                                             widget=forms.TimeInput(attrs={'class': 'timepicker'}),
+                                                             help_text='Use 24-hour format')
 
     def save(self, classroom):
         print('saving')

@@ -1,8 +1,8 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
-from .forms import CustomUserCreationForm, CustomUserChangeForm
-from .models import CustomUser, Subject, Faculty, Classroom, StudentSubject, StudentFaculty, Homework
+from faculty.forms import CustomUserCreationForm, CustomUserChangeForm
+from faculty.models import CustomUser, Subject, Faculty, Classroom, StudentSubject, StudentFaculty, Homework
 
 
 @admin.register(CustomUser)

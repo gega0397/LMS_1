@@ -1,37 +1,12 @@
-from django.contrib.auth.models import AbstractUser
+
 from django.db import models
 from django.utils import timezone
+
+from faculty.choices import USER_TYPE_CHOICES, USER_STATUS_CHOICES
 from django.conf import settings
-
-from faculty.choices import USER_TYPE_CHOICES, USER_STATUS_CHOICES, MAX_CLASSROOM_SIZE, DEFAULT_NUMBER_OF_CLASSES,\
-    DEFAULT_LECTURE_DURATION
 from django.utils.translation import gettext_lazy as _
-from faculty.managers import CustomUserManager
 
-class CustomUser(AbstractUser):
-    username = None
-    email = models.EmailField(_("email address"), unique=True)
-    user_type = models.CharField(max_length=10, choices=USER_TYPE_CHOICES, blank=True, null=True,
-                                 verbose_name=_("User Type"))
-    is_authorized = models.BooleanField(default=True if settings.DEBUG else False, verbose_name=_("Is Authorized"))
 
-    USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = ['user_type', 'first_name', 'last_name']
-
-    objects = CustomUserManager()
-
-    def __str__(self):
-        return " ".join([self.first_name, self.last_name])
-
-    def is_student(self):
-        return self.user_type == 'student'
-
-    def is_lecturer(self):
-        return self.user_type == 'lecturer'
-
-    class Meta:
-        verbose_name = _('User')
-        verbose_name_plural = _('Users')
 
 
 class Subject(models.Model):
@@ -47,11 +22,11 @@ class Subject(models.Model):
 
 
 class Faculty(models.Model):
-    name = models.CharField(max_length=100, verbose_name=_("Name"))
     subjects = models.ManyToManyField(Subject, related_name="faculty", verbose_name=_("Subjects"))
     lectures = models.ManyToManyField(CustomUser, related_name="faculty",
                                       limit_choices_to={'user_type': 'lecturer'},
                                       verbose_name=_("Lecturers"))
+    name = models.CharField(max_length=100, verbose_name=_("Name"))
 
     class Meta:
         verbose_name = _('Faculty')
@@ -69,9 +44,10 @@ class Classroom(models.Model):
                                  limit_choices_to={'user_type': 'lecturer'}, verbose_name=_("Lecturers"))
     is_full = models.BooleanField(default=False, verbose_name=_("Is Full"))
     is_active = models.BooleanField(default=True, verbose_name=_("Is Active"))
-    max_students = models.IntegerField(verbose_name=_("Max Students"), default=MAX_CLASSROOM_SIZE)
+    max_students = models.IntegerField(verbose_name=_("Max Students"), default=settings.MAX_CLASSROOM_SIZE)
     syllabus = models.FileField(upload_to='syllabus/', verbose_name=_("Syllabus"), blank=True, null=True)
-    number_of_classes = models.IntegerField(verbose_name=_("Number of Classes"), default=DEFAULT_NUMBER_OF_CLASSES)
+    number_of_classes = models.IntegerField(verbose_name=_("Number of Classes"),
+                                            default=settings.DEFAULT_NUMBER_OF_CLASSES)
 
     class Meta:
         verbose_name = _('Classroom')
@@ -82,10 +58,10 @@ class Classroom(models.Model):
 
 
 class Homework(models.Model):
+    classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE, verbose_name=_('Classroom'))
     title = models.CharField(max_length=100, verbose_name=_('Title'))
     description = models.TextField(verbose_name=_('Description'))
     due_date = models.DateTimeField(default=timezone.now, verbose_name=_('Due_date'))
-    classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE, verbose_name=_('Classroom'))
     is_active = models.BooleanField(verbose_name=_('Is_Active'), default=True)
 
     class Meta:
@@ -123,7 +99,7 @@ class ClassroomCalendar(models.Model):
     classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE, related_name="calendar", verbose_name=_("Classroom"))
     date = models.DateField(verbose_name=_("Date"))
     start_time = models.TimeField(verbose_name=_("Start Time"))
-    duration = models.IntegerField(verbose_name=_("Duration"), default=DEFAULT_LECTURE_DURATION)
+    duration = models.IntegerField(verbose_name=_("Duration"), default=settings.DEFAULT_LECTURE_DURATION)
 
     class Meta:
         verbose_name = _('Classroom Calendar')

@@ -1,17 +1,14 @@
 from django.urls import path, re_path
 from django.views.generic import RedirectView, TemplateView
-from faculty.views import register_view, login_view, logout_view, profile_view, join_classroom, classroom_view, \
+from faculty.views import profile_view, join_classroom, classroom_view, \
     download_file, homework_view, homework_detail, homework_list, create_homework, attendance
 
 app_name = 'faculty'
 
 urlpatterns = [
     path("", TemplateView.as_view(template_name="faculty/home.html"), name="home"),
-    path('register/', register_view, name='register'),
-    path('login/', login_view, name='login'),
-    path('logout/', logout_view, name='logout'),
     path('profile/', profile_view, name='profile'),
-    # path('profile/homeworks/', homework_list, name='homework_list'),
+    # path('profile/homeworks/<int:homework_id>', homework_list, name='homework_list'),
     # path('profile/homeworks/create/', create_homework, name='create_homework'),
     path('join_classroom/<int:classroom_id>', join_classroom, name='join_classroom'),
     path('classroom/<int:classroom_id>/', classroom_view, name='classroom_view'),

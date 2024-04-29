@@ -36,6 +36,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+
+    "users",
     "faculty"
 ]
 
@@ -131,3 +133,11 @@ LOGOUT_REDIRECT_URL = "faculty:home"
 
 LOGIN_URL = "faculty:home"
 
+# Application Variables
+
+MAX_CLASSROOM_SIZE = 20
+MAX_STUDENT_CLASSROOM = 5
+MAX_LECTURER_CLASSROOM = 10
+IS_OPEN_TO_CHOOSE = True
+DEFAULT_NUMBER_OF_CLASSES = 10
+DEFAULT_LECTURE_DURATION = 2

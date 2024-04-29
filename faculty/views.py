@@ -1,66 +1,12 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
-from faculty.models import CustomUser, StudentFaculty, Classroom, StudentSubject, Homework, StudentHomework
-from faculty.forms import CustomUserCreationForm, LoginForm, StudentProfileForm, ClassroomCreationForm, HomeworkForm, \
+from faculty.models import StudentFaculty, Classroom, StudentSubject, Homework, StudentHomework
+from faculty.forms import StudentProfileForm, ClassroomCreationForm, HomeworkForm, \
     HomeworkSubmissionForm, ClassroomCalendarForm, StudentAttendanceForm, ClassroomAttendance, ClassroomCalendar
 from django.conf import settings
 from django.contrib import messages
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
-from faculty.choices import MAX_CLASSROOM_SIZE, IS_OPEN_TO_CHOOSE, MAX_STUDENT_CLASSROOM
-
-
-# Create your views here.
-
-def register_view(request):
-    if request.method == 'POST':
-        # Create a form that has request.POST
-        form = CustomUserCreationForm(request.POST)
-        if form.is_valid():
-            user = form.save(commit=False)
-            # Set the user's password securely
-            email = form.cleaned_data['email']
-            password1 = form.cleaned_data['password1']
-            password2 = form.cleaned_data['password2']
-
-            if password1 == password2:
-                user.set_password(password1)
-                user.save()
-
-                messages.success(request, f'Your Account has been created {email} ! Proceed to log in')
-                login(request, user)
-                return redirect('faculty:profile')  # Redirect to the login page
-            else:
-                # Handle password mismatch error here
-                form.add_error('password2', 'Passwords entered do not match')
-    else:
-        form = CustomUserCreationForm()
-    return render(request, 'faculty/register.html', {'form': form})
-
-
-def login_view(request):
-    form = LoginForm()
-
-    if request.method == 'POST':
-        form = LoginForm(request.POST)
-        if form.is_valid():
-            email = form.cleaned_data['email']
-            password = form.cleaned_data['password']
-            user = authenticate(request, email=email, password=password)
-
-            if user:
-                login(request, user)
-                return redirect('faculty:profile')
-            else:
-                form.add_error(field=None, error="Invalid username or password")
-
-    return render(request, 'faculty/login.html', {'form': form})
-
-
-def logout_view(request):
-    logout(request)
-    return redirect('home')
-
 
 @login_required
 def profile_view(request):
@@ -68,15 +14,17 @@ def profile_view(request):
 
     if user.is_student():
         try:
-            student_faculties = StudentFaculty.objects.filter(student=user.id)
+            student_faculties = StudentFaculty.objects.filter(student=user)
+        except StudentFaculty.DoesNotExist:
+            student_faculties = None
+
+        if student_faculties:
             student_faculty = [student for student in student_faculties if student.status == 'active']
             if len(student_faculty):
                 student_faculty = student_faculty[0]
-            else:
-                student_faculty = None
-        except StudentFaculty.DoesNotExist:
-            student_faculties = None
+        else:
             student_faculty = None
+
         form = StudentProfileForm(request.POST or None)
         if request.method == 'POST' and form.is_valid():
             obj = form.save(commit=False)
@@ -101,8 +49,8 @@ def profile_view(request):
             'faculty': student_faculty,
             'faculties': student_faculties,
             'enrolled_classrooms': enrolled_classrooms,
-            'max_classroom': MAX_STUDENT_CLASSROOM,
-            'is_open_to_choose': IS_OPEN_TO_CHOOSE,
+            'max_classroom': settings.MAX_STUDENT_CLASSROOM,
+            'is_open_to_choose': settings.IS_OPEN_TO_CHOOSE,
         }
         return render(request, 'faculty/student_profile.html', context)
 
@@ -331,6 +279,6 @@ def attendance(request, classroom_id, attendance_id):
         if attendance_form.is_valid():
             attendance_form.save(attendance)
             messages.success(request, "Attendance submitted successfully.")
-            return redirect('faculty:attendance', classroom_id=classroom.id, attendance_id=attendance_id)
+            return redirect('faculty:classroom_view', classroom_id=classroom.id)
 
     return render(request, 'faculty/attendance.html', {'attendance_form': attendance_form, 'title': 'attendance'})
