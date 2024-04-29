@@ -1,8 +1,8 @@
 
 from django.db import models
 from django.utils import timezone
-
-from faculty.choices import USER_TYPE_CHOICES, USER_STATUS_CHOICES
+from users.models import CustomUser
+from faculty.choices import USER_STATUS_CHOICES
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
