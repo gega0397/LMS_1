@@ -9,6 +9,7 @@ urlpatterns = [
     path("", TemplateView.as_view(template_name="faculty/home.html"), name="home"),
     path('profile/', profile_view, name='profile'),
     # path('profile/homeworks/create/', create_homework, name='create_homework'),
+    path('profile/homeworks/', homework_list, name='homework_list'),
     path('join_classroom/<int:classroom_id>', join_classroom, name='join_classroom'),
     path('classroom/<int:classroom_id>/', classroom_view, name='classroom_view'),
     path('download/<int:request_id>', download_file, name='download_file'),

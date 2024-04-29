@@ -63,7 +63,7 @@
             <button type="submit">Save</button>
         </form>
     {%  elif faculties and not faculty %}
-        <p> Your status is inactive, pleas contact administration </p>
+        <p> Your status is inactive, please contact administration </p>
     {% endif %}
     {% if faculty and is_open_to_choose and enrolled_classrooms.count < max_classroom %}
         <h2>Choose Classroom</h2>
