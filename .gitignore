@@ -7,3 +7,6 @@ faculty/migrations
 faculty/__pycache__
 djangoProject1/__pycache__
 */__pycache__
+users/migrations/__pycache__
+users/migrations/0*
+users/__pycache__
