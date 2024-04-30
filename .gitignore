@@ -3,11 +3,11 @@
 .idea
 faculty/migrations/__pycache__
 db.sqlite3
-faculty/migrations
+faculty/migrations/[0-9]*
 faculty/__pycache__
 djangoProject1/__pycache__
 */__pycache__
 users/migrations/__pycache__
-users/migrations/0*
+users/migrations/[0-9]*
 users/__pycache__
 

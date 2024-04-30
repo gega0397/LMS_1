@@ -1,13 +1,13 @@
 from django import forms
 from django.contrib.auth import password_validation
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
-from django.core.exceptions import ObjectDoesNotExist
 from users.models import CustomUser
-from users.choices import FORM_TYPE_CHOICES
+from users.choices import UserTypeChoicesForm
+
 
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=False, widget=forms.EmailInput(attrs={'class': 'form-control'}))
-    user_type = forms.ChoiceField(choices=FORM_TYPE_CHOICES, required=False)
+    user_type = forms.ChoiceField(choices=UserTypeChoicesForm, required=False)
     password1 = forms.CharField(
         label="Password",
         widget=forms.PasswordInput(attrs={'class': 'form-control', 'id': 'password-input'}),

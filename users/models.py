@@ -3,13 +3,14 @@ from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 from users.managers import CustomUserManager
+from users.choices import UserTypeChoices
 
 
 # Create your models here.
 class CustomUser(AbstractUser):
     username = None
     email = models.EmailField(_("email address"), unique=True)
-    user_type = models.CharField(max_length=10, choices=USER_TYPE_CHOICES, blank=True, null=True,
+    user_type = models.CharField(max_length=10, choices=UserTypeChoices, blank=True, null=True,
                                  verbose_name=_("User Type"))
     is_authorized = models.BooleanField(default=True if settings.DEBUG else False, verbose_name=_("Is Authorized"))
 
